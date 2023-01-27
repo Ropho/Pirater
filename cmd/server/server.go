@@ -1,10 +1,12 @@
 package main
 
 import (
-	"net/http"
+	"fmt"
 
-	"github.com/Ropho/Cinema1337/internal/config"
+	user "github.com/Ropho/Cinema1337/internal/model"
+
 	"github.com/Ropho/Cinema1337/internal/server"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/sirupsen/logrus"
 )
 
@@ -12,16 +14,22 @@ func main() {
 
 	logrus.SetLevel(logrus.InfoLevel)
 
-	conf := config.NewConfig()
-	serv := server.NewServer(conf)
-
-	// fmt.Println(serv)
-
+	serv := server.NewServer()
 	err := serv.Start()
 	if err != nil {
-		logrus.Fatal("SERVER INIT ERROR")
+		logrus.Fatal("SERVER INIT ERROR:", err)
 	}
 
-	http.ListenAndServe(serv.IP_Port, serv.Router)
+	u := &user.User{
+		Id:    0,
+		Email: "ded32@mail.ru",
+		Pass:  "1488",
+	}
 
+	serv.Store.User().Create(u)
+	fmt.Println(u)
+
+	// http.ListenAndServe(serv.IP_Port, serv.Router)
+
+	defer serv.Close()
 }
