@@ -38,5 +38,15 @@ func (r *UserRepo) Create(u *user.User) (*user.User, error) {
 
 func (r *UserRepo) FindByEmail(email string) (*user.User, error) {
 
-	return nil, nil
+	u := &user.User{
+		Email: email,
+	}
+
+	err := r.store.Db.QueryRow("SELECT id, pass FROM users WHERE email = ?", email).Scan(&u.Id, &u.EncryptedPass)
+	if err != nil {
+		logrus.Error("FIND USER BY EMAIL ERROR: ", err)
+		return nil, err
+	}
+
+	return u, nil
 }

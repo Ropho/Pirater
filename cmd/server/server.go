@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"net/http"
 
 	user "github.com/Ropho/Cinema1337/internal/model"
 
@@ -27,9 +27,9 @@ func main() {
 	}
 
 	serv.Store.User().Create(u)
-	fmt.Println(u)
+	// fmt.Println(u)
 
-	// http.ListenAndServe(serv.IP_Port, serv.Router)
+	http.ListenAndServe(serv.IP_Port, serv.Router)
 
 	defer serv.Close()
 }

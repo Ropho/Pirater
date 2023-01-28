@@ -38,6 +38,7 @@ func NewStore() *Store {
 	return &st
 }
 
+// Store.User().Create()
 func (st *Store) User() *UserRepo {
 	if st.UserRepo != nil {
 		return st.UserRepo
@@ -48,5 +49,3 @@ func (st *Store) User() *UserRepo {
 	}
 	return st.UserRepo
 }
-
-//Store.User().Create()
