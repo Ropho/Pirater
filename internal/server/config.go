@@ -1,7 +1,6 @@
 package server
 
 import (
-	"log"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -24,7 +23,7 @@ func NewConfig() *Config {
 
 	err = yaml.Unmarshal(data, &conf)
 	if err != nil {
-		log.Fatalf("PARSE CONFIG error: %v", err)
+		logrus.Fatal("PARSE CONFIG error: ", err)
 	}
 
 	// fmt.Println(conf)

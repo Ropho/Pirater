@@ -8,12 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHandlerBase(t *testing.T) {
+func (s *Server) TestHandlerBase(t *testing.T) {
 
 	// serv := NewServer(config.NewConfig())
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 
-	HandleBase(rec, req)
+	s.handleBase(rec, req)
 	assert.Equal(t, rec.Body.String(), "BASE RESPONSE")
 }

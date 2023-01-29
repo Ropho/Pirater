@@ -47,5 +47,6 @@ func (st *Store) User() *UserRepo {
 	st.UserRepo = &UserRepo{
 		store: st,
 	}
+
 	return st.UserRepo
 }
