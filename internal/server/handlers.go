@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 
@@ -28,7 +27,7 @@ func (s *Server) handleUsersCreate(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
-		s.error(w, r, http.StatusBadRequest, err)
+		s.error(w, r, http.StatusBadRequest, "BAD REQUEST")
 		logrus.Fatal("DECODE BODY ERROR: ", err)
 	}
 	// fmt.Println(req)
@@ -40,10 +39,9 @@ func (s *Server) handleUsersCreate(w http.ResponseWriter, r *http.Request) {
 
 	u, err = s.Store.User().Create(u)
 	if err != nil {
-		s.error(w, r, http.StatusUnprocessableEntity, err)
+		s.error(w, r, http.StatusUnprocessableEntity, "ALREADY CREATED")
+		return
 	}
-
-	// u.Sanitize()
 
 	s.respond(w, r, http.StatusCreated, "REGISTERED")
 
@@ -59,7 +57,7 @@ func (s *Server) handleSessionsCreate(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
-		s.error(w, r, http.StatusBadRequest, err)
+		s.error(w, r, http.StatusBadRequest, "BAD REQUEST")
 		logrus.Fatal("DECODE BODY ERROR: ", err)
 	}
 
@@ -68,32 +66,35 @@ func (s *Server) handleSessionsCreate(w http.ResponseWriter, r *http.Request) {
 		Pass:  req.Pass,
 	}
 
-	logrus.Info(u.Pass)
 	ans, err := s.Store.User().FindByEmail(u.Email)
 	if err != nil {
-		logrus.Fatal("FIND BY EMAIL ERROR: ", err)
+		s.error(w, r, http.StatusUnauthorized, "INCORRECT PASS / EMAIL")
+		return
 	}
-	logrus.Info("ALL GOOD")
-
-	logrus.Info(ans.Pass)
 
 	if u.Pass == ans.Pass {
-		logrus.Info("ALL GOOD")
 		s.respond(w, r, http.StatusAccepted, "LOGGED IN")
-
 	} else {
-		s.error(w, r, http.StatusUnauthorized, errors.New("WRONG PASS OR EMAIL"))
+		s.error(w, r, http.StatusUnauthorized, "INCORRECT PASS / EMAIL")
 	}
 }
 
-func (s *Server) error(w http.ResponseWriter, r *http.Request, code int, err error) {
+func (s *Server) error(w http.ResponseWriter, r *http.Request, code int, data string) {
 
-	s.respond(w, r, code, err.Error())
+	s.respond(w, r, code, responseErr(data))
 }
 
 func (s *Server) respond(w http.ResponseWriter, r *http.Request, code int, data string) {
 
 	w.WriteHeader(code)
 
-	w.Write([]byte(data))
+	w.Write([]byte(responseInfo(data)))
+}
+
+func responseErr(s string) string {
+	return "\033[31m" + s + "\n\033[0m"
+}
+
+func responseInfo(s string) string {
+	return "\033[34m" + s + "\n\033[0m"
 }

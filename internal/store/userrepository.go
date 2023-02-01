@@ -14,11 +14,13 @@ func (r *UserRepo) Create(u *user.User) (*user.User, error) {
 	stmt, err := r.store.Db.Prepare("INSERT INTO users(email, pass) VALUES (?, ?)")
 	if err != nil {
 		logrus.Fatal("PREPARE INSERT ERROR: ", err)
+		return nil, err
 	}
 
 	_, err = stmt.Exec(u.Email, u.Pass)
 	if err != nil {
-		logrus.Fatal("EXEC INSERT ERROR: ", err)
+		logrus.Error("EXEC INSERT ERROR: ", err)
+		return nil, err
 	}
 
 	// lastId, err := res.LastInsertId()
