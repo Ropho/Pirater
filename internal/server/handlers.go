@@ -9,6 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const sessionName = "KINOPOISK"
+
 func (s *Server) handleBase(w http.ResponseWriter, r *http.Request) {
 
 	_, err := io.WriteString(w, "BASE RESPONSE")
@@ -73,28 +75,33 @@ func (s *Server) handleSessionsCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if u.Pass == ans.Pass {
+
+		session, err := s.SessionStore.Get(r, sessionName)
+		if err != nil {
+			logrus.Error(err)
+			s.error(w, r, http.StatusInternalServerError, "COOKIE FAIL")
+			return
+		}
+
+		session.Values["user_id"] = ans.Id
+
+		logrus.Info("STORED ID", ans.Id)
+
+		if err := session.Save(r, w); err != nil {
+			logrus.Error(err)
+			s.error(w, r, http.StatusInternalServerError, "COOKIE FAIL")
+			return
+		}
+
 		s.respond(w, r, http.StatusAccepted, "LOGGED IN")
+
 	} else {
 		s.error(w, r, http.StatusUnauthorized, "INCORRECT PASS / EMAIL")
 	}
 }
 
-func (s *Server) error(w http.ResponseWriter, r *http.Request, code int, data string) {
-
-	s.respond(w, r, code, responseErr(data))
-}
-
-func (s *Server) respond(w http.ResponseWriter, r *http.Request, code int, data string) {
-
-	w.WriteHeader(code)
-
-	w.Write([]byte(responseInfo(data)))
-}
-
-func responseErr(s string) string {
-	return "\033[31m" + s + "\n\033[0m"
-}
-
-func responseInfo(s string) string {
-	return "\033[34m" + s + "\n\033[0m"
+func (serv *Server) handleWhoami() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		serv.respond(w, r, http.StatusOK, r.Context().Value(ctxKeyUser).(*model.User).Email)
+	}
 }

@@ -47,6 +47,22 @@ func (r *UserRepo) FindByEmail(email string) (*user.User, error) {
 		logrus.Error("FIND USER BY EMAIL ERROR: ", err)
 		return nil, err
 	}
+	// logrus.Info(u)
+
+	return u, nil
+}
+
+func (r *UserRepo) FindById(id int) (*user.User, error) {
+
+	u := &user.User{
+		Id: id,
+	}
+
+	err := r.store.Db.QueryRow("SELECT id, email, pass FROM users WHERE id = ?", id).Scan(&u.Id, &u.Email, &u.Pass)
+	if err != nil {
+		logrus.Error("FIND USER BY ID ERROR: ", err)
+		return nil, err
+	}
 
 	return u, nil
 }

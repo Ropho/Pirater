@@ -8,15 +8,16 @@ import (
 )
 
 type Config struct {
-	ServAddr string `yaml:"serv_addr"`
-	Port     int    `yaml:"port"`
+	ServAddr  string `yaml:"serv_addr"`
+	Port      int    `yaml:"port"`
+	CookieKey string `yaml:"cookie_key"`
 }
 
 func NewConfig() *Config {
 
 	data, err := os.ReadFile("./config/server.yaml")
 	if err != nil {
-		logrus.Error("READING CONFIG FILE ERROR")
+		logrus.Fatal("READING CONFIG FILE ERROR")
 	}
 
 	conf := Config{}
@@ -25,8 +26,6 @@ func NewConfig() *Config {
 	if err != nil {
 		logrus.Fatal("PARSE CONFIG error: ", err)
 	}
-
-	// fmt.Println(conf)
 
 	return &conf
 }
