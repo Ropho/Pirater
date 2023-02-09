@@ -1,7 +1,7 @@
 package store
 
 import (
-	user "github.com/Ropho/Cinema1337/internal/model"
+	user "github.com/Ropho/Cinema/internal/model"
 	"github.com/sirupsen/logrus"
 )
 

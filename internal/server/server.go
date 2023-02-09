@@ -5,21 +5,23 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Ropho/Cinema1337/internal/store"
+	"github.com/Ropho/Cinema/internal/store"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/sirupsen/logrus"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-const ctxKeyUser ctxKey = iota
-
 type ctxKey int8
+
+const ctxKeyUser ctxKey = iota
 
 type Server struct {
 	IP_Port      string
 	Router       *mux.Router
 	Store        *store.Store
 	SessionStore sessions.Store
+	SwaggerUrl   string
 }
 
 func NewServer() *Server {
@@ -29,15 +31,20 @@ func NewServer() *Server {
 	sStore := sessions.NewCookieStore([]byte(conf.CookieKey))
 	sStore.MaxAge(1000)
 
-	return &Server{
+	serv := &Server{
 		IP_Port:      conf.ServAddr + ":" + strconv.Itoa(conf.Port),
 		Router:       mux.NewRouter(),
 		Store:        store.NewStore(),
 		SessionStore: sStore,
 	}
+	return serv
 }
 
 func (serv *Server) Start() error {
+
+	serv.Router.PathPrefix("/swagger").HandlerFunc(httpSwagger.Handler(
+		httpSwagger.URL(serv.SwaggerUrl), //The url pointing to API definition
+	)).Methods("GET")
 
 	serv.Router.HandleFunc("/", serv.handleBase)
 	serv.Router.HandleFunc("/users", serv.handleUsersCreate).Methods("POST")
@@ -52,13 +59,14 @@ func (serv *Server) Start() error {
 	if err != nil {
 		logrus.Fatal("SERVER PROCESS ERROR: ", err)
 	}
-	logrus.Info("SERVER CLOSING\n")
+	logrus.Info("SERVER CLOSED UNECTEDLY\n")
 
 	return err
 }
 
 func (serv *Server) Close() {
 	serv.Store.Db.Close()
+	logrus.Info("SERVER CLOSE...")
 }
 
 func (serv *Server) authenticateUser(next http.Handler) http.Handler {

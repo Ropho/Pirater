@@ -5,12 +5,18 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/Ropho/Cinema1337/internal/model"
+	_ "github.com/Ropho/Cinema/docs"
+	"github.com/Ropho/Cinema/internal/model"
 	"github.com/sirupsen/logrus"
 )
 
 const sessionName = "KINOPOISK"
 
+// GetOrders godoc
+// @Summary Get details of all orders
+// @Description Get details of all orders
+// @Tags W/O AUTH
+// @Router / [get]
 func (s *Server) handleBase(w http.ResponseWriter, r *http.Request) {
 
 	_, err := io.WriteString(w, "BASE RESPONSE")

@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	ServAddr  string `yaml:"serv_addr"`
-	Port      int    `yaml:"port"`
-	CookieKey string `yaml:"cookie_key"`
+	ServAddr   string `yaml:"serv_addr"`
+	Port       int    `yaml:"port"`
+	CookieKey  string `yaml:"cookie_key"`
+	SwaggerUrl string `yaml:"swagger_url"`
 }
 
 func NewConfig() *Config {
@@ -24,7 +25,7 @@ func NewConfig() *Config {
 
 	err = yaml.Unmarshal(data, &conf)
 	if err != nil {
-		logrus.Fatal("PARSE CONFIG error: ", err)
+		logrus.Fatal("PARSE SERVER CONFIG error: ", err)
 	}
 
 	return &conf

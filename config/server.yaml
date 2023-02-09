@@ -1,3 +1,4 @@
 serv_addr: "127.0.0.1"
 port: 8080
 cookie_key: "QWERTY!@#$%^"
+swagger_url: "http://localhost:8080/swagger/doc.json"
