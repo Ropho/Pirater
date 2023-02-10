@@ -17,21 +17,11 @@ func (r *UserRepo) Create(u *user.User) (*user.User, error) {
 		return nil, err
 	}
 
-	_, err = stmt.Exec(u.Email, u.Pass)
+	_, err = stmt.Exec(u.Email, u.EncryptedPass)
 	if err != nil {
 		logrus.Error("EXEC INSERT ERROR: ", err)
 		return nil, err
 	}
-
-	// lastId, err := res.LastInsertId()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// rowCnt, err := res.RowsAffected()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// log.Printf("ID = %d, affected = %d\n", lastId, rowCnt)
 
 	return u, nil
 }
@@ -42,7 +32,7 @@ func (r *UserRepo) FindByEmail(email string) (*user.User, error) {
 		Email: email,
 	}
 
-	err := r.store.Db.QueryRow("SELECT id, pass FROM users WHERE email = ?", email).Scan(&u.Id, &u.Pass)
+	err := r.store.Db.QueryRow("SELECT id, pass FROM users WHERE email = ?", email).Scan(&u.Id, &u.EncryptedPass)
 	if err != nil {
 		logrus.Error("FIND USER BY EMAIL ERROR: ", err)
 		return nil, err
@@ -58,7 +48,7 @@ func (r *UserRepo) FindById(id int) (*user.User, error) {
 		Id: id,
 	}
 
-	err := r.store.Db.QueryRow("SELECT id, email, pass FROM users WHERE id = ?", id).Scan(&u.Id, &u.Email, &u.Pass)
+	err := r.store.Db.QueryRow("SELECT id, email, pass FROM users WHERE id = ?", id).Scan(&u.Id, &u.Email, &u.EncryptedPass)
 	if err != nil {
 		logrus.Error("FIND USER BY ID ERROR: ", err)
 		return nil, err

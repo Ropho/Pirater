@@ -46,11 +46,13 @@ func (serv *Server) Start() error {
 		httpSwagger.URL(serv.SwaggerUrl), //The url pointing to API definition
 	)).Methods("GET")
 
-	serv.Router.HandleFunc("/", serv.handleBase)
-	serv.Router.HandleFunc("/users", serv.handleUsersCreate).Methods("POST")
-	serv.Router.HandleFunc("/sessions", serv.handleSessionsCreate).Methods("POST")
+	api := serv.Router.PathPrefix("/api").Subrouter()
 
-	private := serv.Router.PathPrefix("/private").Subrouter()
+	api.HandleFunc("/", serv.handleBase)
+	api.HandleFunc("/users", serv.handleUsersCreate).Methods("POST")
+	api.HandleFunc("/sessions", serv.handleSessionsCreate).Methods("POST")
+
+	private := api.PathPrefix("/private").Subrouter()
 	private.Use(serv.authenticateUser)
 	private.HandleFunc("/whoami", serv.handleWhoami()).Methods("GET")
 
@@ -105,20 +107,20 @@ func (serv *Server) authenticateUser(next http.Handler) http.Handler {
 
 func (s *Server) error(w http.ResponseWriter, r *http.Request, code int, data string) {
 
-	s.respond(w, r, code, responseErr(data))
+	s.respond(w, r, code, data)
 }
 
 func (s *Server) respond(w http.ResponseWriter, r *http.Request, code int, data string) {
 
 	w.WriteHeader(code)
 
-	w.Write([]byte(responseInfo(data)))
+	w.Write([]byte(data))
 }
 
-func responseErr(s string) string {
-	return "\033[31m" + s + "\n\033[0m"
-}
+// func responseErr(s string) string {
+// 	return "\033[31m" + s + "\n\033[0m"
+// }
 
-func responseInfo(s string) string {
-	return "\033[34m" + s + "\n\033[0m"
-}
+// func responseInfo(s string) string {
+// 	return "\033[34m" + s + "\n\033[0m"
+// }

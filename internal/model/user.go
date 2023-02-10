@@ -16,33 +16,39 @@ type User struct {
 
 func (u *User) BeforeCreate() error {
 
-	err := validate(u)
+	err := Validate(u)
 	if err != nil {
 		logrus.Error("VALIDATION USER ERROR: ", err)
 		return err
 	}
 
-	enc, err := encryptPass(u.Pass)
+	enc, err := EncryptPass(u.Pass)
 	if err != nil {
 		logrus.Error("ENCRYPT PASS ERROR: ", err)
 		return err
 	}
 	u.EncryptedPass = enc
 
+	u.Sanitize()
+
 	return nil
 }
 
-func validate(u *User) error {
+func Validate(u *User) error {
 
-	return validation.ValidateStruct(u, validation.Field(u.Email, validation.Required, is.Email),
-		validation.Field(u.Pass, validation.By(requiredIf(u.EncryptedPass == "")), validation.Length(4, 20)))
+	return validation.ValidateStruct(u,
+		validation.Field(&u.Email, validation.Required, is.Email),
+		validation.Field(&u.Pass, validation.By(requiredIf(u.EncryptedPass == "")), validation.Length(3, 20)))
 }
 
 func (u *User) Sanitize() {
 	u.Pass = ""
 }
 
-func encryptPass(s string) (string, error) {
+func EncryptPass(s string) (string, error) {
+
+	// r := rand.New(rand.NewSource(99))
+	// passLen := r.Int() % 32
 
 	data, err := bcrypt.GenerateFromPassword([]byte(s), bcrypt.MinCost)
 	if err != nil {
