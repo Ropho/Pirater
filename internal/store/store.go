@@ -21,7 +21,9 @@ func NewStore() *Store {
 	st.Conf = NewConfig()
 
 	//"root:2280@/test"
-	st.Db, err = sql.Open("mysql", st.Conf.User+":"+st.Conf.Pass+"@/"+st.Conf.DbName)
+	// st.Db, err = sql.Open("mysql", st.Conf.User+":"+st.Conf.Pass+"@/"+st.Conf.DbName)
+	st.Db, err = sql.Open("mysql", "root:2280@tcp(127.0.0.1:3307)/test")
+
 	if err != nil {
 		logrus.Fatal("SQL OPEN ERROR: ", err)
 	}

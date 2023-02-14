@@ -16,6 +16,8 @@ import (
 
 func main() {
 
+	logrus.Info("SUCCESFULLY IN HERE")
+
 	logrus.SetLevel(logrus.InfoLevel)
 
 	/////////////////////////////////////////////////

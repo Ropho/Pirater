@@ -103,6 +103,7 @@ func (s *Server) handleSessionsCreate(w http.ResponseWriter, r *http.Request) {
 
 	err = model.Validate(u)
 	if err != nil {
+		s.error(w, r, http.StatusBadRequest, "VALIDATION ERROR")
 		logrus.Error("VALIDATION USER ERROR: ", err)
 		return
 	}
