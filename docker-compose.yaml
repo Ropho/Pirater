@@ -1,15 +1,20 @@
 version: '3'
 
 services:
-    
+
   db:
     image: mysql
     # restart: always
     ports:
     - 3307:3306
     environment:
-      - MYSQL_ROOT_PASSWORD=2280
+    - MYSQL_ROOT_PASSWORD=2280
+    volumes:
+    - db-data:/var/lib/mysql
 
+volumes:
+    db-data:
+        driver: local
 
     # my_app:
     #     image: app:1.0
