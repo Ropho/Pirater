@@ -1,0 +1,67 @@
+.navbar-name{
+    font-size: 32px;
+    font-family: 'Montserrat', sans-serif;
+    color: white;
+    margin-left: 20px;
+}
+
+
+.navbar-button{
+  appearance: button;
+  backface-visibility: hidden;
+  background-color: #405FCE;
+  border-radius: 6px;
+  border-width: 0;
+  box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset,rgba(50, 50, 93, .1) 0 2px 5px 0,rgba(0, 0, 0, .07) 0 1px 1px 0;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  font-family: 'Montserrat', sans-serif;
+  margin-right: 40px;
+  display: inline-block;  
+  font-size: 20px;
+  height: 44px;
+  line-height: 1.15;    
+  outline: none;
+  overflow: hidden;
+  text-align: center;
+  text-transform: none;
+  transform: translateZ(0);
+  transition: all .2s,box-shadow .08s ease-in;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.navbar-button:disabled {
+  cursor: default;
+}
+
+.navbar-button:focus {
+  box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset, rgba(50, 50, 93, .2) 0 6px 15px 0, rgba(0, 0, 0, .1) 0 2px 2px 0, rgba(50, 151, 211, .3) 0 0 0 4px;
+}
+
+
+.navbar-pannel-container{
+    margin-left: 60px;
+}
+
+.navbar-pannel-container > div{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 10px;
+    float: left;
+    margin-left: 30px;
+    font-size: 17px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+
+nav{
+    background-color:#323148;
+    display: flex;
+    align-items: center;
+}
