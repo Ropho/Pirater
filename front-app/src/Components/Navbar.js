@@ -6,7 +6,9 @@ export default function NavigationBar()
     return(
         <div>
             <nav>
-                <h1  className='navbar-name'> KENTUKY FRIED CINEMA </h1>
+                <div className='navbar-name'>
+                    <h1> KENTUKY FRIED CINEMA </h1>
+                </div>
                 <div className='navbar-pannel-container'>
                     <div>Главная</div>
                     <div> Фильмы</div>
