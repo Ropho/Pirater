@@ -1,49 +1,65 @@
-nav{
-  background-color:#323148;
+.Navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-left: 2%;
-  padding-right: 2%;
-  flex-direction: row;
+  background-color: #25262A;
+  height: 100px;
+  padding: 0 20px;
+}
+
+.Navbar--logo {
+  height: 50px;
+  fill: white;
+  object-fit: cover;
 }
 
 
-.navbar-name{
-  font-size: 24px;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: bold;
-  color: white;
+.Navbar--nav{
+  position: relative;
+  right:4%;
+  overflow: hidden;
 }
 
-nav ul{
-  margin-right: 13%;
+.Navbar--nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
 }
 
-nav ul li{
-  color:#1F1E2B;
-  list-style-type: none;
-  display: inline-block;
-  padding: 22px;
+.Navbar--nav li {
+  margin: 0 18px;
+}
+
+.Navbar--nav a {
   text-decoration: none;
+  color: whitesmoke;
+  font-size: 16pt;
   font-weight: bold;
-  font-size: 25px;
 }
 
-.navbar-button{
+.NavbarLink--active{
+  color: whitesmoke;
+  font-size: 16pt;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+
+
+.Navbar--auth button {
   appearance: button;
   backface-visibility: hidden;
-  background-color: #405FCE;
-  border-radius: 8px;
+  background-color: #E13737;
+  border-radius: 4rem;
   padding: 12px 25px;
   border-width: 0;
   box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset,rgba(50, 50, 93, .1) 0 2px 5px 0,rgba(0, 0, 0, .07) 0 1px 1px 0;
   box-sizing: border-box;
   color: #fff;
-  cursor:help;
   font-family: 'Montserrat', sans-serif;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 16pt;
   outline: none;
   text-transform: none;
   transform: translateZ(0);
@@ -51,14 +67,61 @@ nav ul li{
   touch-action: manipulation;
 }
 
-.navbar-button:disabled {
+
+.Navbar--auth button:disabled {
   cursor: default;
 }
 
-.navbar-button:focus {
+.Navbar--auth button:focus {
   box-shadow: rgba(50, 50, 93, .1) 0 0 0 1px inset, rgba(50, 50, 93, .2) 0 6px 15px 0, rgba(0, 0, 0, .1) 0 2px 2px 0, rgba(50, 151, 211, .3) 0 0 0 4px;
 }
 
-.navbar-button:hover{
+.Navbar--auth button:hover{
   color:black;
+}
+
+
+@media only screen and (max-width: 768px) {
+  .Navbar {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .Navbar--nav {
+    display: none;
+  }
+
+  .Navbar--nav.show {
+    display: block;
+  }
+
+  .Navbar--auth {
+    margin-top: 10px;
+  }
+
+  .Navbar--auth button {
+    width: 100%;
+  }
+
+  .Navbar--nav ul {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .Navbar--nav li {
+    margin: 10px 0;
+  }
+
+  .Navbar--nav a {
+    font-size: 24px;
+    padding: 10px 0;
+    border-bottom: 1px solid whitesmoke;
+    width: 100%;
+    text-align: center;
+    display: block;
+}
+
+.Navbar--links a.active {
+  text-decoration: underline;
+}
 }
