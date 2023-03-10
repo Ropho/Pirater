@@ -1,0 +1,90 @@
+form{
+  display: flex;
+  flex-direction: column;
+  gap:24pt;
+  margin-top: 50px;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: url(../octopus.svg) no-repeat center center fixed;
+  background-size: cover;
+  object-fit: cover;
+  border-radius: 5rem;
+  height: 50vh;
+  max-height: 600px;
+}
+
+.form--container{
+  display: block;
+  width: 100%;
+  max-width: 600px;
+}
+
+input[type="text"],
+input[type="password"] {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16pt;
+  width: 100%;
+  max-width: 200px;
+  background-color: #52525C;
+  font-family:'Montserrat', sans-serif ;
+  color:white;
+}
+
+::placeholder{
+  opacity: 1;
+  color:whitesmoke;
+}
+
+
+
+button{
+  padding: 12pt 20pt;
+  border-radius: 16pt;
+  border: none;
+  background-color: #E13737;
+  color: #fff;
+  font-size: 16pt;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
+  max-width: 300px;
+}
+  
+button[type="submit"]:hover {
+  background-color: #0062cc;
+}
+
+h3{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
+  font-size: 32pt;
+  color:whitesmoke;
+}
+
+.Modal--container{
+  width: 85%;
+  max-width: 600px;
+  margin:auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border-radius: 5rem;
+  height: 50vh;
+  max-height: 600px;
+}
+
+.Modal--overlay{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  opacity: 1;
+}
+
+.ReactModal__Body--open {
+  overflow: hidden;
+}
