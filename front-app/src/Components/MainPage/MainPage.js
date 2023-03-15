@@ -1,4 +1,4 @@
-import React        from 'react'
+import React, { useEffect, useState } from 'react'
 import Carousel     from './Carousel'
 import FilmContainer from './FilmContainer'
 import dataCarousel from './data_carousel'
@@ -9,6 +9,7 @@ import './MainPage.css'
 
 export default function MainPage()
 {
+
     return(
         <main>
             <Carousel      data = {dataCarousel}/>
