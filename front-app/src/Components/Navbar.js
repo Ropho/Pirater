@@ -15,7 +15,7 @@ export default function NavigationBar(props)
     login: "",
     password: "",
     isLogin:false
-    });
+  });
 
 
 
