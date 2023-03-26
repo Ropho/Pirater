@@ -2,73 +2,61 @@ package server
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"net/http"
-	"strconv"
+	"time"
+
+	"github.com/Ropho/Cinema/config"
 
 	"github.com/Ropho/Cinema/internal/store"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/sirupsen/logrus"
-	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type ctxKey int8
 
-const ctxKeyUser ctxKey = iota
+const (
+	videoDir = "./video"
+
+	ctxKeyUser ctxKey = iota
+	ctxKeyRequestId
+)
 
 type Server struct {
 	IP_Port      string
 	Router       *mux.Router
-	Store        *store.Store
+	Store        store.Store
+	Config       *config.Config
 	SessionStore sessions.Store
 	SwaggerUrl   string
 }
 
-func NewServer() *Server {
+func newDb(conf *config.DBaseConfig) (*sql.DB, error) {
 
-	conf := NewConfig()
-
-	sStore := sessions.NewCookieStore([]byte(conf.CookieKey))
-	sStore.MaxAge(1000)
-
-	serv := &Server{
-		IP_Port:      conf.ServAddr + ":" + strconv.Itoa(conf.Port),
-		Router:       mux.NewRouter(),
-		Store:        store.NewStore(),
-		SessionStore: sStore,
-	}
-	return serv
-}
-
-func (serv *Server) Start() error {
-
-	serv.Router.PathPrefix("/swagger").HandlerFunc(httpSwagger.Handler(
-		httpSwagger.URL(serv.SwaggerUrl), //The url pointing to API definition
-	)).Methods("GET")
-
-	api := serv.Router.PathPrefix("/api").Subrouter()
-
-	api.HandleFunc("/", serv.handleBase)
-	api.HandleFunc("/users", serv.handleUsersCreate).Methods("POST")
-	api.HandleFunc("/sessions", serv.handleSessionsCreate).Methods("POST")
-
-	private := api.PathPrefix("/private").Subrouter()
-	private.Use(serv.authenticateUser)
-	private.HandleFunc("/whoami", serv.handleWhoami()).Methods("GET")
-
-	logrus.Info("SERVER STARTING\n")
-	err := http.ListenAndServe(serv.IP_Port, serv.Router)
+	//"root:2280@/test"
+	port := fmt.Sprintf("%d", conf.DbPort)
+	url := conf.DbUser + ":" + conf.DbPass + "@tcp(" + conf.DbAddr + ":" + port + ")/" + conf.DbName
+	// db, err := sql.Open("mysql", "root:2280@tcp(127.0.0.1:3307)/test")
+	db, err := sql.Open("mysql", url)
 	if err != nil {
-		logrus.Fatal("SERVER PROCESS ERROR: ", err)
+		logrus.Error("sql db open error: ", err)
+		return nil, err
 	}
-	logrus.Info("SERVER CLOSED UNECTEDLY\n")
 
-	return err
-}
+	err = db.Ping()
+	if err != nil {
+		logrus.Error("db connect error: ", err)
+		return nil, err
+	}
 
-func (serv *Server) Close() {
-	serv.Store.Db.Close()
-	logrus.Info("SERVER CLOSE...")
+	db.SetConnMaxLifetime(time.Minute * 3)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
+
+	return db, nil
 }
 
 func (serv *Server) authenticateUser(next http.Handler) http.Handler {
@@ -78,7 +66,7 @@ func (serv *Server) authenticateUser(next http.Handler) http.Handler {
 		session, err := serv.SessionStore.Get(r, sessionName)
 		if err != nil {
 			serv.error(w, r, http.StatusInternalServerError, "SESSION ERROR")
-			logrus.Error("SESSION GET ERROR: ", err)
+			logrus.Error("session get error: ", err)
 			return
 		}
 
@@ -101,26 +89,23 @@ func (serv *Server) authenticateUser(next http.Handler) http.Handler {
 		logrus.Info("AUTHENTICATE USER GOOD")
 
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyUser, u)))
+	})
+}
 
+func (s *Server) setRequestId(next http.Handler) http.Handler {
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		id := uuid.New().String()
+		w.Header().Set("Request ID", id)
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyRequestId, id)))
 	})
 }
 
 func (s *Server) error(w http.ResponseWriter, r *http.Request, code int, data string) {
-
 	s.respond(w, r, code, data)
 }
 
 func (s *Server) respond(w http.ResponseWriter, r *http.Request, code int, data string) {
-
 	w.WriteHeader(code)
-
 	w.Write([]byte(data))
 }
-
-// func responseErr(s string) string {
-// 	return "\033[31m" + s + "\n\033[0m"
-// }
-
-// func responseInfo(s string) string {
-// 	return "\033[34m" + s + "\n\033[0m"
-// }

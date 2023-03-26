@@ -1,6 +1,8 @@
 package model
 
 import (
+	"time"
+
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/sirupsen/logrus"
@@ -8,10 +10,11 @@ import (
 )
 
 type User struct {
-	Id            int    `json:"id"`
-	Email         string `json:"email"`
-	Pass          string `json:"pass,omitempty"`
-	EncryptedPass string `json:"-"`
+	Id            int       `json:"id"`
+	Email         string    `json:"email"`
+	Pass          string    `json:"pass,omitempty"`
+	EncryptedPass string    `json:"-"`
+	Registered    time.Time `json:"registered,omitempty"`
 }
 
 func (u *User) BeforeCreate() error {
