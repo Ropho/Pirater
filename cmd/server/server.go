@@ -4,7 +4,7 @@ import (
 	"github.com/Ropho/Cinema/config"
 	"github.com/Ropho/Cinema/internal/server"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // @title KINOPOISK API
@@ -15,24 +15,26 @@ import (
 // @host 192.168.31.100:8080
 // @BasePath /
 
+var DefaultLogger *log.Logger
+
 func init() {
-	logrus.SetLevel(logrus.InfoLevel)
+	DefaultLogger = log.New()
 }
 
 func main() {
 
-	conf, err := config.NewConfig()
+	conf, err := config.NewConfig(DefaultLogger)
 	if err != nil {
-		logrus.Panic("unable to init config: ", err)
+		DefaultLogger.Panic("unable to init config: ", err)
 	}
 
 	/////////////////////////////////////////////////
 	serv, err := server.NewServer(conf)
 	if err != nil {
-		logrus.Panic("unable to init server: ", err)
+		DefaultLogger.Panic("unable to init server: ", err)
 	}
 
 	if err := serv.Start(); err != nil {
-		logrus.Panic("unable to start server: ", err)
+		serv.Logger.Panic("unable to start server: ", err)
 	}
 }

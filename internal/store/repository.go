@@ -12,8 +12,8 @@ type UserRepository interface {
 }
 
 type FilmRepository interface {
-	// Create(*film.Film) error
-	FindById(id int) (*film.Film, error)
+	Create(films []film.Film) error
+	// FindById(id int) (*film.Film, error)
 	FindByName(name string) (*film.Film, error)
 	CountAllRows() (int, error)
 	GetRandomFilms(num int) ([]film.Film, error)

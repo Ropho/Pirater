@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -10,34 +11,51 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-func NewServer(conf *config.Config) (*Server, error) {
-
-	sStore := sessions.NewCookieStore([]byte(conf.Server.CookieKey))
+func newCookieStore(key []byte) *sessions.CookieStore {
+	sStore := sessions.NewCookieStore(key)
 	sStore.MaxAge(1000)
 
-	db, err := newDb(&conf.DBase)
+	return sStore
+}
+
+func newLogger(conf *config.Config) *log.Logger {
+
+	log := log.New()
+
+	return log
+}
+
+func NewServer(conf *config.Config) (*Server, error) {
+
+	logger := newLogger(conf)
+
+	db, err := newDb(&conf.DBase, logger)
 	if err != nil {
-		logrus.Error("db init error: ", err)
+		logger.Error("db init error: ", err)
 		return nil, err
 	}
+
 	serv := &Server{
-		IP_Port:      conf.Server.Addr + ":" + strconv.Itoa(conf.Server.Port),
+		IP_Port:      fmt.Sprint(conf.Server.Addr, ":", strconv.Itoa(conf.Server.Port)),
 		Router:       mux.NewRouter(),
 		Store:        sqlstore.NewStore(db),
-		SessionStore: sStore,
+		SessionStore: newCookieStore([]byte(conf.Server.CookieKey)),
 		Config:       conf,
+		Logger:       logger,
 	}
+
 	return serv, nil
 }
 
 func (serv *Server) Start() error {
-
-	serv.Router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
+	// serv.Router.Use(handlers.CORS(handlers.ExposedHeaders([]string{"SET-COOKIE"})))
 	serv.Router.Use(serv.setRequestId)
+	serv.Router.Use(serv.logRequest)
+	serv.Router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
 
 	serv.Router.HandleFunc("/", serv.handleBase).Methods("GET")
 
@@ -55,21 +73,23 @@ func (serv *Server) Start() error {
 	api.HandleFunc("/newFilms", serv.handleGetNewFilms()).Methods("GET")
 	api.HandleFunc("/film", serv.HandleGetCurrentFilm()).Methods("GET")
 
-	api.HandleFunc("/users", serv.handleUsersCreate).Methods("POST")
-	api.HandleFunc("/sessions", serv.handleSessionsCreate).Methods("POST")
+	api.HandleFunc("/users", serv.handleUsersCreate()).Methods("POST")
+	api.HandleFunc("/sessions", serv.handleSessionsCreate()).Methods("POST")
+
+	api.HandleFunc("/add/films", serv.handleAddFilms()).Methods("POST")
 
 	private := api.PathPrefix("/private").Subrouter()
 	private.Use(serv.authenticateUser)
 	private.HandleFunc("/whoami", serv.handleWhoami()).Methods("GET")
 
-	logrus.Info("server starting\n")
+	// log.Info("server starting\n")
+	serv.Logger.Info("server Starting: ", serv.IP_Port)
 	err := http.ListenAndServe(serv.IP_Port, serv.Router)
 	if err != nil {
-		logrus.Error("server serve error: ", err)
+		serv.Logger.Error("server serve error: ", err)
 		return err
 	}
 
-	logrus.Info("server closed unexpectedly\n")
+	serv.Logger.Error("server closed unexpectedly\n")
 	return err
-
 }

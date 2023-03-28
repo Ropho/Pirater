@@ -3,7 +3,7 @@ package config
 import (
 	"os"
 
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
 
@@ -31,18 +31,18 @@ type Config struct {
 	Api    ApiConfig    `yaml:"api"`
 }
 
-func NewConfig() (*Config, error) {
+func NewConfig(logger *log.Logger) (*Config, error) {
 
 	data, err := os.ReadFile("./config/config.yaml")
 	if err != nil {
-		logrus.Error("read config error: ", err)
+		logger.Error("read config error: ", err)
 		return nil, err
 	}
 
 	conf := Config{}
 	err = yaml.Unmarshal(data, &conf)
 	if err != nil {
-		logrus.Error("unable to parse config: ", err)
+		logger.Error("unable to parse config: ", err)
 		return nil, err
 	}
 

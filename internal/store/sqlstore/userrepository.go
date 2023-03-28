@@ -32,7 +32,8 @@ func (r *SqlUserRepository) FindByEmail(email string) (*model.User, error) {
 		Email: email,
 	}
 
-	err := r.store.Db.QueryRow("SELECT id, encr_pass FROM users WHERE email = ?", email).Scan(&u.Id, &u.EncryptedPass)
+	err := r.store.Db.QueryRow("SELECT id, encr_pass FROM users WHERE email = ?", email).Scan(
+		&u.Id, &u.EncryptedPass)
 	if err != nil {
 		logrus.Error("FIND USER BY EMAIL ERROR: ", err)
 		return nil, err
@@ -48,7 +49,7 @@ func (r *SqlUserRepository) FindById(id int) (*model.User, error) {
 		Id: id,
 	}
 
-	err := r.store.Db.QueryRow("SELECT id, email, encr_pass FROM users WHERE id = ?", id).Scan(&u.Id, &u.Email, &u.EncryptedPass)
+	err := r.store.Db.QueryRow("SELECT email, encr_pass FROM users WHERE id = ?", id).Scan(&u.Email, &u.EncryptedPass)
 	if err != nil {
 		logrus.Error("FIND USER BY ID ERROR: ", err)
 		return nil, err

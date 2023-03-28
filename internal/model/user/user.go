@@ -41,7 +41,8 @@ func Validate(u *User) error {
 
 	return validation.ValidateStruct(u,
 		validation.Field(&u.Email, validation.Required, is.Email),
-		validation.Field(&u.Pass, validation.By(requiredIf(u.EncryptedPass == "")), validation.Length(3, 20)))
+		validation.Field(&u.Pass, validation.By(requiredIf(u.EncryptedPass == "")),
+			validation.Length(3, 20)))
 }
 
 func (u *User) Sanitize() {
