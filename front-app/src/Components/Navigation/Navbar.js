@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import {ReactComponent as Logo} from '../logo.svg'
+import {ReactComponent as Logo} from '../../logo.svg'
 import {NavLink, useMatch, useNavigate, useResolvedPath} from "react-router-dom"
 import "./Navbar.css"
 import Modal from 'react-modal';
@@ -17,8 +17,6 @@ export default function NavigationBar(props)
     isLogin:false
   });
 
-
-
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   let activeStyle = {
@@ -34,7 +32,7 @@ export default function NavigationBar(props)
 return (
   <div>
   <nav className="Navbar">
-    <NavLink exact to="/">
+    <NavLink to="/">
       <Logo className = "Navbar--logo"/>
     </NavLink>
     <div className="Navbar--nav">

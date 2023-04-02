@@ -1,16 +1,19 @@
 import React, {useState} from 'react'
+import {Link} from 'react-router-dom'
 import "./FilmContainer.css"
 
 
 function ImageContainer(props)
 {
   return (
-    <div 
+    <div
       className="film-card"
       id ={props.id}
     >
-      <img src={props.URL} alt={props.name} className="film-image"/>
+      <Link to = {`/currentFilm/${props.hash}`} >
+      <img src={props.imgUrl} alt={props.name} className="film-image"/>
       <h3 className="film-title">{props.name}</h3>
+      </Link>
     </div>
   );
 }
@@ -20,11 +23,11 @@ export default function FilmsGrid(props) {
   
   let images = props.data.map((curFilm) => (
     <ImageContainer 
-    key  = {curFilm.id} 
-    id   = {curFilm.id} 
-    URL  = {curFilm.URL} 
-    name = {curFilm.name} 
-    description = {curFilm.description} 
+    key     = {curFilm.id} 
+    id      = {curFilm.id} 
+    imgUrl  = {curFilm.url} 
+    name    = {curFilm.name} 
+    hash    = {curFilm.hash}
     />
   ))
 
