@@ -8,6 +8,9 @@ api:
     swagger_url: "http://localhost:8080/swagger/doc.json"
     # swagger_url: "http://192.168.31.100:8080/swagger/doc.json"
 
+log:
+    level: "debug"
+
 db:
     db_user: "root"
     db_pass: "2280"

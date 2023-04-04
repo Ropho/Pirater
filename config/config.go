@@ -30,10 +30,15 @@ type EnvVar struct {
 	SessionName string
 }
 
+type LogConfig struct {
+	Level string `yaml:"level"`
+}
+
 type Config struct {
 	Server ServerConfig `yaml:"server"`
 	DBase  DBaseConfig  `yaml:"db"`
 	Api    ApiConfig    `yaml:"api"`
+	Log    LogConfig    `yaml:"log"`
 	Env    EnvVar
 }
 

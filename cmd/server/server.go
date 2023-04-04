@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/Ropho/Cinema/config"
 	"github.com/Ropho/Cinema/internal/server"
-	_ "github.com/go-sql-driver/mysql"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -28,8 +28,7 @@ func main() {
 		DefaultLogger.Panic("unable to init config: ", err)
 	}
 
-	/////////////////////////////////////////////////
-	serv, err := server.NewServer(conf)
+	serv, err := server.NewServer(conf, DefaultLogger)
 	if err != nil {
 		DefaultLogger.Panic("unable to init server: ", err)
 	}

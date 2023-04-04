@@ -17,7 +17,7 @@ import (
 type ctxKey int8
 
 const (
-	videoDir = "./video"
+	// videoDir = "./video"
 
 	ctxKeyUser ctxKey = iota
 	ctxKeyRequestId
@@ -54,6 +54,13 @@ func newDb(conf *config.DBaseConfig, logger *log.Logger) (*sql.DB, error) {
 	db.SetMaxIdleConns(10)
 
 	return db, nil
+}
+
+func newCookieStore(key []byte) *sessions.CookieStore {
+	sStore := sessions.NewCookieStore(key)
+	sStore.MaxAge(1000)
+
+	return sStore
 }
 
 func (s *Server) error(w http.ResponseWriter, r *http.Request, code int, data string) {

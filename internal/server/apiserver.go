@@ -2,6 +2,9 @@ package server
 
 import (
 	"fmt"
+
+	log "github.com/sirupsen/logrus"
+
 	"net/http"
 	"strconv"
 
@@ -10,33 +13,20 @@ import (
 	"github.com/Ropho/Cinema/internal/store/sqlstore"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
-	log "github.com/sirupsen/logrus"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-func newCookieStore(key []byte) *sessions.CookieStore {
-	sStore := sessions.NewCookieStore(key)
-	sStore.MaxAge(1000)
+func NewServer(conf *config.Config, defaultlogger *log.Logger) (*Server, error) {
 
-	return sStore
-}
-
-func newLogger(conf *config.Config) *log.Logger {
-
-	log := log.New()
-
-	return log
-}
-
-func NewServer(conf *config.Config) (*Server, error) {
-
-	logger := newLogger(conf)
+	logger, err := NewLogger(&conf.Log)
+	if err != nil {
+		logger = defaultlogger
+		logger.Error("init logger from config error, using default")
+	}
 
 	db, err := newDb(&conf.DBase, logger)
 	if err != nil {
-		logger.Error("db init error: ", err)
-		return nil, err
+		return nil, fmt.Errorf("init db error: [%w]", err)
 	}
 
 	serv := &Server{
@@ -52,6 +42,21 @@ func NewServer(conf *config.Config) (*Server, error) {
 }
 
 func (serv *Server) Start() error {
+
+	serv.initHandlers()
+
+	serv.Logger.Info("server Starting: ", serv.IP_Port)
+
+	err := http.ListenAndServe(serv.IP_Port, serv.Router)
+	if err != nil {
+		return fmt.Errorf("server serve error: [%w]", err)
+	}
+
+	return nil
+}
+
+func (serv *Server) initHandlers() {
+
 	// serv.Router.Use(handlers.CORS(handlers.ExposedHeaders([]string{"SET-COOKIE"})))
 	serv.Router.Use(serv.setRequestId)
 	serv.Router.Use(serv.logRequest)
@@ -62,7 +67,7 @@ func (serv *Server) Start() error {
 	)).Methods("GET")
 
 	// serv.Router.Handle(videoDir, serv.handleBase(http.FileServer(http.Dir(videoDir))))
-	serv.Router.PathPrefix("/static/").Handler(serv.handleStatic(http.StripPrefix("/static/", http.FileServer(http.Dir(videoDir)))))
+	// serv.Router.PathPrefix("/static/").Handler(serv.handleStatic(http.StripPrefix("/static/", http.FileServer(http.Dir(videoDir)))))
 
 	api := serv.Router.PathPrefix("/api/").Subrouter()
 
@@ -82,14 +87,4 @@ func (serv *Server) Start() error {
 	private.Use(serv.authenticateUser)
 	private.HandleFunc("/whoami", serv.handleWhoami()).Methods("GET")
 
-	// log.Info("server starting\n")
-	serv.Logger.Info("server Starting: ", serv.IP_Port)
-	err := http.ListenAndServe(serv.IP_Port, serv.Router)
-	if err != nil {
-		serv.Logger.Error("server serve error: ", err)
-		return err
-	}
-
-	serv.Logger.Error("server closed unexpectedly\n")
-	return err
 }

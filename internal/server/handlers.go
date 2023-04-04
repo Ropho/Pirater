@@ -17,11 +17,11 @@ func (s *Server) handleBase(w http.ResponseWriter, r *http.Request) {
 	logrus.Info("HELLO WORLD!!!")
 }
 
-func (s *Server) handleStatic(h http.Handler) http.HandlerFunc {
+// func (s *Server) handleStatic(h http.Handler) http.HandlerFunc {
 
-	return func(w http.ResponseWriter, r *http.Request) {
-		logrus.Info("static file process")
+// 	return func(w http.ResponseWriter, r *http.Request) {
+// 		logrus.Info("static file process")
 
-		h.ServeHTTP(w, r)
-	}
-}
+// 		h.ServeHTTP(w, r)
+// 	}
+// }
