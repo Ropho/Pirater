@@ -1,0 +1,16 @@
+FROM node:latest AS build
+WORKDIR /build
+
+COPY front-app/package.json package.json
+COPY front-app/package-lock.json package-lock.json
+RUN npm ci
+
+COPY front-app/public/ public
+COPY front-app/src/ src
+RUN npm run build
+
+FROM nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+WORKDIR /var/www/html
+COPY --from=build /build/build /usr/share/nginx/html
+# CMD npm start

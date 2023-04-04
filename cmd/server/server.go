@@ -12,7 +12,7 @@ import (
 // @description U can access functions from here
 // @schemes http https
 
-// @host 192.168.31.100:8080
+// @host localhost:8080
 // @BasePath /
 
 var DefaultLogger *log.Logger

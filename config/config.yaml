@@ -1,12 +1,12 @@
 server:
-    # serv_addr: "127.0.0.1"
-    addr: "192.168.31.100"
+    addr: "127.0.0.1"
+    # addr: "192.168.31.100"
     port: 8080
     cookie_key: "QWERTY!@#$%^"
 
 api:
-    # swagger_url: "http://localhost:8080/swagger/doc.json"
-    swagger_url: "http://192.168.31.100:8080/swagger/doc.json"
+    swagger_url: "http://localhost:8080/swagger/doc.json"
+    # swagger_url: "http://192.168.31.100:8080/swagger/doc.json"
 
 db:
     db_user: "root"

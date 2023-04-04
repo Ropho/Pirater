@@ -57,8 +57,6 @@ func (serv *Server) Start() error {
 	serv.Router.Use(serv.logRequest)
 	serv.Router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
 
-	serv.Router.HandleFunc("/", serv.handleBase).Methods("GET")
-
 	serv.Router.PathPrefix("/swagger").HandlerFunc(httpSwagger.Handler(
 		httpSwagger.URL(serv.SwaggerUrl), //The url pointing to API definition
 	)).Methods("GET")
@@ -67,6 +65,8 @@ func (serv *Server) Start() error {
 	serv.Router.PathPrefix("/static/").Handler(serv.handleStatic(http.StripPrefix("/static/", http.FileServer(http.Dir(videoDir)))))
 
 	api := serv.Router.PathPrefix("/api/").Subrouter()
+
+	api.HandleFunc("/", serv.handleBase).Methods("GET")
 	// api.PathPrefix("/video/").Handler(http.StripPrefix("/video/", http.FileServer(http.Dir(videoDir))))
 	// api.Handle("/", serv.handleBase(http.FileServer(http.Dir("./video"))))
 	api.HandleFunc("/carousel", serv.handleGetCarousel()).Methods("GET")

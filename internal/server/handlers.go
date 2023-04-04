@@ -11,7 +11,7 @@ import (
 // TEST FUNC godoc
 // @Summary TESTING
 // @Tags W/O AUTH
-// @Router / [get]
+// @Router /api/ [get]
 func (s *Server) handleBase(w http.ResponseWriter, r *http.Request) {
 	s.respond(w, r, http.StatusOK, "HELLO WORLD!")
 	logrus.Info("HELLO WORLD!!!")

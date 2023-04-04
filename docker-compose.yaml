@@ -13,11 +13,26 @@ services:
     volumes:
     - db-data:/var/lib/mysql
 
-volumes:
-    db-data:
-        driver: local
+  
+  web_server:
+    image: nginxapp
+    restart: always
+    ports:
+    - 80:80
+    network_mode: host
+    # volumes:
+    # - ./data/images:/usr/share/nginx
+    # - ./data/static:/usr/share/nginx/html
+    # - nginx-data:/etc/nginx
+    # - 80:80
+
 
     # my_app:
     #     image: app:1.0
     #     ports:
     #     - 8080:8080
+volumes:
+    db-data:
+        driver: local
+    # nginx-data:
+        # driver: local
