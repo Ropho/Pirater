@@ -7,10 +7,9 @@ export default function Carousel(props)
 {
     
     const img = props.data.map((curImg) => {
-        console.log(curImg.URL)
         return(
             <SplideSlide key={curImg.id}>
-                <img className = 'carousel--img' src = {curImg.URL} alt = {curImg.name}></img>
+                <img className = 'carousel--img' src = {curImg.url} alt = {curImg.name}></img>
             </SplideSlide>
         )
     })

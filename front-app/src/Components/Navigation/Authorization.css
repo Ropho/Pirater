@@ -6,7 +6,7 @@ form{
   align-items: center;
   justify-content: center;
   position: relative;
-  background: url(../octopus.svg) no-repeat center center fixed;
+  background: url(/public/octopus.svg) no-repeat center center fixed;
   background-size: cover;
   object-fit: cover;
   border-radius: 5rem;
