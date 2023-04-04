@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 
+	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
@@ -25,10 +26,15 @@ type ApiConfig struct {
 	SwaggerUrl string `yaml:"swagger_url"`
 }
 
+type EnvVar struct {
+	SessionName string
+}
+
 type Config struct {
 	Server ServerConfig `yaml:"server"`
 	DBase  DBaseConfig  `yaml:"db"`
 	Api    ApiConfig    `yaml:"api"`
+	Env    EnvVar
 }
 
 func NewConfig(logger *log.Logger) (*Config, error) {
@@ -46,5 +52,24 @@ func NewConfig(logger *log.Logger) (*Config, error) {
 		return nil, err
 	}
 
+	err = getEnvVar(&conf)
+	if err != nil {
+		logger.Error("unable to parse env var: ", err)
+		return nil, err
+	}
+
 	return &conf, nil
+}
+
+func getEnvVar(conf *Config) error {
+
+	err := godotenv.Load("./config/key.env")
+	if err != nil {
+		log.Error("error loading .env file:", err)
+		return err
+	}
+
+	conf.Env.SessionName = os.Getenv("sessionName")
+
+	return nil
 }

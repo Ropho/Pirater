@@ -9,8 +9,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const sessionName = "KINOPOISK"
-
 type UserClientInfo struct {
 	Email string `json:"email"`
 	Pass  string `json:"pass"`
@@ -73,14 +71,14 @@ func (s *Server) handleUsersCreate() http.HandlerFunc {
 // @Failure      400  {string} string
 // @Failure      422  {string}  string
 // @Router /api/sessions [post]
-func (s *Server) handleSessionsCreate() http.HandlerFunc {
+func (serv *Server) handleSessionsCreate() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &UserClientInfo{}
 
 		err := json.NewDecoder(r.Body).Decode(req)
 		if err != nil {
-			s.error(w, r, http.StatusBadRequest, "")
+			serv.error(w, r, http.StatusBadRequest, "")
 			logrus.Error("DECODE BODY ERROR: ", err)
 			return
 		}
@@ -92,14 +90,14 @@ func (s *Server) handleSessionsCreate() http.HandlerFunc {
 
 		err = user.Validate(u)
 		if err != nil {
-			s.error(w, r, http.StatusBadRequest, "VALIDATION ERROR")
+			serv.error(w, r, http.StatusBadRequest, "VALIDATION ERROR")
 			logrus.Error("VALIDATION USER ERROR: ", err)
 			return
 		}
 
-		ans, err := s.Store.User().FindByEmail(u.Email)
+		ans, err := serv.Store.User().FindByEmail(u.Email)
 		if err != nil {
-			s.error(w, r, http.StatusUnauthorized, "INCORRECT PASS / EMAIL")
+			serv.error(w, r, http.StatusUnauthorized, "INCORRECT PASS / EMAIL")
 			logrus.Error("FIND BY EMAIL FAIl")
 			return
 		}
@@ -107,13 +105,13 @@ func (s *Server) handleSessionsCreate() http.HandlerFunc {
 		if err = bcrypt.CompareHashAndPassword([]byte(ans.EncryptedPass), []byte(u.Pass)); err != nil {
 
 			logrus.Error("INCORRECT PASS")
-			s.error(w, r, http.StatusUnauthorized, "INCORRECT PASS / EMAIL")
+			serv.error(w, r, http.StatusUnauthorized, "INCORRECT PASS / EMAIL")
 
 		} else {
-			session, err := s.SessionStore.Get(r, sessionName)
+			session, err := serv.SessionStore.Get(r, serv.Config.Env.SessionName)
 			if err != nil {
 				logrus.Error(err)
-				s.error(w, r, http.StatusInternalServerError, "session get error")
+				serv.error(w, r, http.StatusInternalServerError, "session get error")
 				return
 			}
 			session.Values["user_id"] = ans.Id
@@ -122,11 +120,11 @@ func (s *Server) handleSessionsCreate() http.HandlerFunc {
 
 			if err := session.Save(r, w); err != nil {
 				logrus.Error(err)
-				s.error(w, r, http.StatusInternalServerError, "session save error")
+				serv.error(w, r, http.StatusInternalServerError, "session save error")
 				return
 			}
 
-			s.respond(w, r, http.StatusAccepted, "LOGGED IN")
+			serv.respond(w, r, http.StatusAccepted, "LOGGED IN")
 		}
 	}
 }

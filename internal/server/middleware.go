@@ -13,7 +13,7 @@ func (serv *Server) authenticateUser(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		session, err := serv.SessionStore.Get(r, sessionName)
+		session, err := serv.SessionStore.Get(r, serv.Config.Env.SessionName)
 		if err != nil {
 			serv.error(w, r, http.StatusInternalServerError, "SESSION ERROR")
 			logrus.Error("session get error: ", err)
