@@ -1,0 +1,94 @@
+.paper--image{
+    background: url(/public/john.jpeg);
+}
+
+.current--container{
+    justify-content: center;
+    flex-direction: column;
+}
+
+.afisha--container{
+    display: block;
+    position: relative;
+    width: 98.5%;
+    height: 70vh;
+    min-height: 720px;
+    overflow: hidden;
+    min-width: 1080px;
+    margin-left: 1.5%;
+}
+
+.afisha--img--content{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    object-fit:cover;
+    object-position: top center;
+    border-bottom-left-radius: 5rem;
+    border-bottom-right-radius: 5rem;
+}
+
+.afisha--text--content{
+    display: flex;
+    position: relative;
+}
+
+
+.film--name--block{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: 7rem;
+    width: 40%;
+    min-width: 450px;
+    height: fit-content;
+    background-color: #E13737;
+    line-height: 30px;
+    border-bottom-right-radius: 5rem;
+    border-top-right-radius: 5rem;
+}
+
+.film--name{
+    margin-top: 1rem;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+    font-size: 28pt;
+    color:whitesmoke;
+    margin-left: 3.5rem;
+    overflow-wrap: break-word;
+}
+
+.film--category{
+    margin-top: 7px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12pt;
+    color:whitesmoke;
+    margin-left: 3.5rem;
+    overflow-wrap: break-word;
+}
+
+
+.film--description{
+    top: 14rem;
+    position: absolute;
+    width: fit-content;
+    max-width: 450px;
+    margin-top: 1rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16pt;
+    color:whitesmoke;
+    margin-left: 3.5rem;
+    overflow-wrap: break-word;
+}
+
+
+.videoPlayer--container{
+    display: flex;
+    justify-content: center;
+    height: 95vh;
+    width: 95%;
+    margin: auto;
+    margin-top: 7rem;
+    min-width: 1080px;
+    min-height: 720px;
+}
