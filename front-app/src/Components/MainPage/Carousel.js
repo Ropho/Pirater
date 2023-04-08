@@ -4,12 +4,11 @@ import '@splidejs/react-splide/css';
 import './Carousel.css'
 
 export default function Carousel(props)
-{
-    
+{   
     const img = props.data.map((curImg) => {
         return(
-            <SplideSlide key={curImg.id}>
-                <img className = 'carousel--img' src = {curImg.url} alt = {curImg.name}></img>
+            <SplideSlide key={curImg.hash}>
+                <img className = 'carousel--img' src = {curImg.pic_url} alt = {curImg.name}></img>
             </SplideSlide>
         )
     })

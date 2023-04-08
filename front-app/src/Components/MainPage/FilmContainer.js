@@ -10,7 +10,7 @@ function ImageContainer(props)
       className="film-card"
       id ={props.id}
     >
-      <Link to = {`/currentFilm/${props.hash}`} >
+      <Link to = {`/film/${props.hash}`} >
       <img src={props.imgUrl} alt={props.name} className="film-image"/>
       <h3 className="film-title">{props.name}</h3>
       </Link>
@@ -23,9 +23,8 @@ export default function FilmsGrid(props) {
   
   let images = props.data.map((curFilm) => (
     <ImageContainer 
-    key     = {curFilm.id} 
-    id      = {curFilm.id} 
-    imgUrl  = {curFilm.url} 
+    id      = {curFilm.hash} 
+    imgUrl  = {curFilm.pic_url} 
     name    = {curFilm.name} 
     hash    = {curFilm.hash}
     />
@@ -35,7 +34,7 @@ export default function FilmsGrid(props) {
     <div className="films-container">
       <h2 className="header">New!</h2>
       <div className="films-grid">
-        {images}   
+        {images}
       </div>
     </div>
   );

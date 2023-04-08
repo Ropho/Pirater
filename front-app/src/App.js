@@ -15,7 +15,7 @@ function App() {
         <Routes>
             <Route path = "/" exact element={<MainPage/>} />
             <Route path = "/support" exact element={<h1>Help support</h1>} />
-            <Route path = "/currentFilm/:hash" 
+            <Route path = "/film/:hash" 
             exact element={<CurrentFilm/>} />
         </Routes>
       </div>
