@@ -20,7 +20,8 @@ services:
     ports:
     - 80:80
     network_mode: host
-    # volumes:
+    volumes:
+    - ./logs/server:/var/log/nginx
     # - ./data/images:/usr/share/nginx
     # - ./data/static:/usr/share/nginx/html
     # - nginx-data:/etc/nginx

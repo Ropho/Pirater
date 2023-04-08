@@ -14,20 +14,20 @@ func (r *SqlFilmRepository) Create(films []film.Film) error {
 	numOfFields := 7
 	params := make([]interface{}, 0, len(films)*numOfFields)
 
-	command := "INSERT INTO films (name, pic_url, desc_path, film_path, trailer_path, hash, rating) VALUES "
+	command := "INSERT INTO films (name, pic_url, description, film_url, trailer_url, hash, rating) VALUES "
 
 	for i := 0; i < len(films); i++ {
 
-		params = append(params, films[i].Name, films[i].PicUrl, films[i].DescPath,
-			films[i].FilmPath, films[i].TrailerPath, films[i].Hash, films[i].Rating)
+		params = append(params, films[i].Name, films[i].PicUrl, films[i].Description,
+			films[i].FilmUrl, films[i].TrailerUrl, films[i].Hash, films[i].Rating)
 		command += "(?, ?, ?, ?, ?, ?, ?)"
 		if i != len(films)-1 {
 			command += ",\n"
 		}
 	}
 
-	logrus.Info(command)
-	logrus.Info(params...)
+	// logrus.Info(command)
+	// logrus.Info(params...)
 	// stmt, err := r.store.Db.Prepare(command)
 	// if err != nil {
 	// 	logrus.Fatal("PREPARE INSERT ERROR: ", err)
@@ -60,16 +60,16 @@ func (r *SqlFilmRepository) Create(films []film.Film) error {
 // 	return f, nil
 // }
 
-func (r *SqlFilmRepository) FindByName(name string) (*film.Film, error) {
+func (r *SqlFilmRepository) FindByHash(hash uint32) (*film.Film, error) {
 
 	f := &film.Film{
-		Name: name,
+		Hash: hash,
 	}
 
-	err := r.store.Db.QueryRow("SELECT id, hash, trailer_path, film_path, desc_path, pic_url, rating FROM films WHERE name = ?", f.Name).Scan(
-		&f.Id, &f.Hash, &f.TrailerPath, &f.FilmPath, &f.DescPath, &f.PicUrl, &f.Rating)
+	err := r.store.Db.QueryRow("SELECT id, name, trailer_url, film_url, description, pic_url, rating FROM films WHERE hash = ?", f.Hash).Scan(
+		&f.Id, &f.Name, &f.TrailerUrl, &f.FilmUrl, &f.Description, &f.PicUrl, &f.Rating)
 	if err != nil {
-		logrus.Error("find film by name error: ", err)
+		logrus.Error("find film by hash error: ", err)
 		return nil, err
 	}
 
@@ -89,10 +89,11 @@ func (r *SqlFilmRepository) CountAllRows() (int, error) {
 	return cnt, nil
 }
 
+// pciurl | hash | name
 func (r *SqlFilmRepository) GetRandomFilms(num int) ([]film.Film, error) {
 
 	rows, err := r.store.Db.Query(
-		"SELECT name, hash, trailer_path, film_path, desc_path, pic_url, rating FROM films "+
+		"SELECT name, hash, trailer_url, film_url, description, pic_url, rating FROM films "+
 			"ORDER BY RAND() "+
 			"LIMIT ?", num)
 	if err != nil {
@@ -106,8 +107,8 @@ func (r *SqlFilmRepository) GetRandomFilms(num int) ([]film.Film, error) {
 	for rows.Next() {
 		var tmpFilm film.Film
 		if err := rows.Scan(
-			&tmpFilm.Name, &tmpFilm.Hash, &tmpFilm.TrailerPath, &tmpFilm.FilmPath,
-			&tmpFilm.DescPath, &tmpFilm.PicUrl, &tmpFilm.Rating); err != nil {
+			&tmpFilm.Name, &tmpFilm.Hash, &tmpFilm.TrailerUrl, &tmpFilm.FilmUrl,
+			&tmpFilm.Description, &tmpFilm.PicUrl, &tmpFilm.Rating); err != nil {
 			logrus.Error("scan rows error: ", err)
 			return nil, err
 		}
@@ -122,12 +123,13 @@ func (r *SqlFilmRepository) GetRandomFilms(num int) ([]film.Film, error) {
 	return films, err
 }
 
+// pciurl | hash | name
 func (r *SqlFilmRepository) GetNewFilms(num int) ([]film.Film, error) {
 
 	films := make([]film.Film, 0, num)
 
 	rows, err := r.store.Db.Query(
-		"SELECT added, name, hash, trailer_path, film_path, desc_path, pic_url, rating FROM films "+
+		"SELECT added, name, hash, trailer_url, film_url, description, pic_url, rating FROM films "+
 			"ORDER BY STR_TO_DATE(`added`,'%m/%d/%Y %h:%i:%s %p')"+
 			"LIMIT ?", num)
 	if err != nil {
@@ -138,8 +140,8 @@ func (r *SqlFilmRepository) GetNewFilms(num int) ([]film.Film, error) {
 
 	for rows.Next() {
 		var tmpFilm film.Film
-		if err := rows.Scan(&tmpFilm.Timestamp, &tmpFilm.Name, &tmpFilm.Hash, &tmpFilm.TrailerPath, &tmpFilm.FilmPath,
-			&tmpFilm.DescPath, &tmpFilm.PicUrl, &tmpFilm.Rating); err != nil {
+		if err := rows.Scan(&tmpFilm.Timestamp, &tmpFilm.Name, &tmpFilm.Hash, &tmpFilm.TrailerUrl, &tmpFilm.FilmUrl,
+			&tmpFilm.Description, &tmpFilm.PicUrl, &tmpFilm.Rating); err != nil {
 			logrus.Error("scan rows error: ", err)
 			return nil, err
 		}
@@ -153,3 +155,5 @@ func (r *SqlFilmRepository) GetNewFilms(num int) ([]film.Film, error) {
 
 	return films, err
 }
+
+// all without hash

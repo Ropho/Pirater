@@ -8,6 +8,8 @@ build:
 
 .PHONY: run
 run:
+# if rm logs/server/access.log fi
+# if rm logs/server/error.log fi
 	./bin/prog
 
 
@@ -17,4 +19,4 @@ migrate_up:
 
 .PHONY: migrate_down
 migrate_down:
-	migrate -path migrations -database "mysql://root:2280@localhost:3306/piraterDB" down
+	migrate -path migrations -database "mysql://root:2280@tcp(localhost:3306)/piraterDB" down

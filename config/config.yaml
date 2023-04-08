@@ -2,18 +2,17 @@ server:
     addr: "127.0.0.1"
     # addr: "192.168.31.100"
     port: 8080
-    cookie_key: "QWERTY!@#$%^"
 
-api:
-    swagger_url: "http://localhost:8080/swagger/doc.json"
+# api:
+    # swagger_url: "http://localhost:8080/swagger/doc.json"
     # swagger_url: "http://192.168.31.100:8080/swagger/doc.json"
 
 log:
     level: "debug"
 
 db:
-    db_user: "root"
-    db_pass: "2280"
-    db_name: "piraterDB"
-    db_addr: "127.0.0.1"
-    db_port: 3306
+    user: "root"
+    pass: "2280"
+    name: "piraterDB"
+    addr: "127.0.0.1"
+    port: 3306

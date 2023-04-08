@@ -1,33 +1,33 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/joho/godotenv"
-	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
 
 type ServerConfig struct {
-	Addr      string `yaml:"addr"`
-	Port      int    `yaml:"port"`
-	CookieKey string `yaml:"cookie_key"`
+	Addr string `yaml:"addr"`
+	Port int    `yaml:"port"`
 }
 
 type DBaseConfig struct {
-	DbUser string `yaml:"db_user"`
-	DbPass string `yaml:"db_pass"`
-	DbName string `yaml:"db_name"`
-	DbAddr string `yaml:"db_addr"`
-	DbPort int    `yaml:"db_port"`
+	User string `yaml:"user"`
+	Pass string `yaml:"pass"`
+	Name string `yaml:"name"`
+	Addr string `yaml:"addr"`
+	Port int    `yaml:"port"`
 }
 
-type ApiConfig struct {
-	SwaggerUrl string `yaml:"swagger_url"`
-}
+// type ApiConfig struct {
+// SwaggerUrl string `yaml:"swagger_url"`
+// }
 
 type EnvVar struct {
-	SessionName string
+	SessionName string `yaml:"session_name"`
+	CookieKey   string `yaml:"cookie_key"`
 }
 
 type LogConfig struct {
@@ -37,30 +37,27 @@ type LogConfig struct {
 type Config struct {
 	Server ServerConfig `yaml:"server"`
 	DBase  DBaseConfig  `yaml:"db"`
-	Api    ApiConfig    `yaml:"api"`
-	Log    LogConfig    `yaml:"log"`
-	Env    EnvVar
+	// Api    ApiConfig    `yaml:"api"`
+	Log LogConfig `yaml:"log"`
+	Env EnvVar
 }
 
-func NewConfig(logger *log.Logger) (*Config, error) {
+func NewConfig() (*Config, error) {
 
 	data, err := os.ReadFile("./config/config.yaml")
 	if err != nil {
-		logger.Error("read config error: ", err)
-		return nil, err
+		return nil, fmt.Errorf("read config error: [%w]", err)
 	}
 
 	conf := Config{}
 	err = yaml.Unmarshal(data, &conf)
 	if err != nil {
-		logger.Error("unable to parse config: ", err)
-		return nil, err
+		return nil, fmt.Errorf("unable to parse config: [%w]", err)
 	}
 
 	err = getEnvVar(&conf)
 	if err != nil {
-		logger.Error("unable to parse env var: ", err)
-		return nil, err
+		return nil, fmt.Errorf("unable to parse env var: [%w]", err)
 	}
 
 	return &conf, nil
@@ -70,11 +67,11 @@ func getEnvVar(conf *Config) error {
 
 	err := godotenv.Load("./config/key.env")
 	if err != nil {
-		log.Error("error loading .env file:", err)
-		return err
+		return fmt.Errorf("error loading .env file: [%w]", err)
 	}
 
 	conf.Env.SessionName = os.Getenv("sessionName")
+	conf.Env.CookieKey = os.Getenv("cookieKey")
 
 	return nil
 }

@@ -19,12 +19,12 @@ type UserClientInfo struct {
 // @Tags W/O AUTH
 // @Accept       json
 // @Produce      json
-// @Param input body UserClientInfo true "User Registry"
+// @Param user body UserClientInfo true "User Registry"
 // @Success      200  {string} string
 // @Success      201  {string} string "Happily Registered"
 // @Success      400  {string} string
 // @Failure      422  {string}  string
-// @Router /api/users [post]
+// @Router /users [post]
 func (s *Server) handleUsersCreate() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +70,7 @@ func (s *Server) handleUsersCreate() http.HandlerFunc {
 // @Success      202  {string} string "Happily Logged"
 // @Failure      400  {string} string
 // @Failure      422  {string}  string
-// @Router /api/sessions [post]
+// @Router /sessions [post]
 func (serv *Server) handleSessionsCreate() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {

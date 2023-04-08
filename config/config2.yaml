@@ -1,0 +1,13 @@
+server:
+    addr: "127.0.0.1"
+    port: 8008
+
+log:
+    level: "debug"
+
+db:
+    db_user: "root"
+    db_pass: "2280"
+    db_name: "piraterDB"
+    db_addr: "127.0.0.1"
+    db_port: 3306

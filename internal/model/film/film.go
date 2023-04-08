@@ -3,11 +3,11 @@ package model
 type Film struct {
 	Id          int      `json:"id"`
 	Name        string   `json:"name"`
-	PicUrl      string   `json:"url"`
+	PicUrl      string   `json:"pic_url"`
 	Hash        uint32   `json:"hash"`
-	DescPath    string   `json:"description,omitempty"`
-	FilmPath    string   `json:"film,omitempty"`
-	TrailerPath string   `json:"trailer,omitempty"`
+	Description string   `json:"description,omitempty"`
+	FilmUrl     string   `json:"film_url,omitempty"`
+	TrailerUrl  string   `json:"trailer_url,omitempty"`
 	Categories  []string `json:"categories,omitempty"`
 	Rights      []string `json:"rights,omitempty"`
 	Rating      int      `json:"rating"`

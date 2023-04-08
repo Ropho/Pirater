@@ -33,9 +33,10 @@ func NewServer(conf *config.Config, defaultlogger *log.Logger) (*Server, error) 
 		IP_Port:      fmt.Sprint(conf.Server.Addr, ":", strconv.Itoa(conf.Server.Port)),
 		Router:       mux.NewRouter(),
 		Store:        sqlstore.NewStore(db),
-		SessionStore: newCookieStore([]byte(conf.Server.CookieKey)),
+		SessionStore: newCookieStore([]byte(conf.Env.CookieKey)),
 		Config:       conf,
 		Logger:       logger,
+		// SwaggerUrl:   conf.Api.SwaggerUrl,
 	}
 
 	return serv, nil
@@ -62,9 +63,11 @@ func (serv *Server) initHandlers() {
 	serv.Router.Use(serv.logRequest)
 	serv.Router.Use(handlers.CORS(handlers.AllowedOrigins([]string{"*"})))
 
+	url := "doc.json"
 	serv.Router.PathPrefix("/swagger").HandlerFunc(httpSwagger.Handler(
-		httpSwagger.URL(serv.SwaggerUrl), //The url pointing to API definition
-	)).Methods("GET")
+		httpSwagger.URL(url), //The url pointing to API definition
+	))
+	// serv.SwaggerUrl
 
 	// serv.Router.Handle(videoDir, serv.handleBase(http.FileServer(http.Dir(videoDir))))
 	// serv.Router.PathPrefix("/static/").Handler(serv.handleStatic(http.StripPrefix("/static/", http.FileServer(http.Dir(videoDir)))))
@@ -76,7 +79,8 @@ func (serv *Server) initHandlers() {
 	// api.Handle("/", serv.handleBase(http.FileServer(http.Dir("./video"))))
 	api.HandleFunc("/carousel", serv.handleGetCarousel()).Methods("GET")
 	api.HandleFunc("/newFilms", serv.handleGetNewFilms()).Methods("GET")
-	api.HandleFunc("/film", serv.HandleGetCurrentFilm()).Methods("GET")
+	api.HandleFunc("/film/{hash}", serv.HandleGetCurrentFilm()).Methods("GET")
+	// api.PathPrefix("/film").Handler(serv.HandleGetCurrentFilm()).Methods("GET")
 
 	api.HandleFunc("/users", serv.handleUsersCreate()).Methods("POST")
 	api.HandleFunc("/sessions", serv.handleSessionsCreate()).Methods("POST")

@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -64,9 +65,11 @@ func (s *Server) logRequest(next http.Handler) http.Handler {
 
 		next.ServeHTTP(rw, r)
 
-		logger.Infof("completed with %d %s in %v\n",
+		logger.Infof("completed with %d %s in %v",
 			rw.code,
 			http.StatusText(rw.code),
 			time.Since(start))
+
+		fmt.Println("")
 	})
 }

@@ -29,13 +29,13 @@ type Server struct {
 	Store        store.Store
 	Config       *config.Config
 	SessionStore sessions.Store
-	SwaggerUrl   string
-	Logger       *log.Logger
+	// SwaggerUrl   string
+	Logger *log.Logger
 }
 
 func newDb(conf *config.DBaseConfig, logger *log.Logger) (*sql.DB, error) {
 
-	url := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", conf.DbUser, conf.DbPass, conf.DbAddr, conf.DbPort, conf.DbName)
+	url := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", conf.User, conf.Pass, conf.Addr, conf.Port, conf.Name)
 	// db, err := sql.Open("mysql", "root:2280@tcp(127.0.0.1:3307)/test")
 	db, err := sql.Open("mysql", url)
 	if err != nil {

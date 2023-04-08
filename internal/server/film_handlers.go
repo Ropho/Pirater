@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	film "github.com/Ropho/Cinema/internal/model/film"
+	"github.com/gorilla/mux"
 
 	"github.com/Ropho/Cinema/internal/utils"
 	"github.com/sirupsen/logrus"
@@ -18,13 +19,13 @@ import (
 // @Param  count query string true "number of films required"
 // @Success      200  {array} server.handleGetCarousel.CarouselFilmInfo
 // @Failure      500  {string}  string
-// @Router /api/carousel [get]
+// @Router /carousel [get]
 func (serv *Server) handleGetCarousel() http.HandlerFunc {
 
 	type CarouselFilmInfo struct {
-		Id     int    `json:"id"`
+		Hash   uint32 `json:"hash"`
 		Name   string `json:"name"`
-		PicUrl string `json:"url"`
+		PicUrl string `json:"pic_url"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +60,7 @@ func (serv *Server) handleGetCarousel() http.HandlerFunc {
 
 		for i := 0; i < len(dbFilms); i++ {
 			carouselFilm := CarouselFilmInfo{
-				Id:     i,
+				Hash:   dbFilms[i].Hash,
 				Name:   dbFilms[i].Name,
 				PicUrl: dbFilms[i].PicUrl,
 			}
@@ -83,14 +84,13 @@ func (serv *Server) handleGetCarousel() http.HandlerFunc {
 // @Param  count query string true "number of films required"
 // @Success      200  {array} server.handleGetNewFilms.NewFilmInfo
 // @Failure      500  {string}  string
-// @Router /api/newFilms [get]
+// @Router /newFilms [get]
 func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 
 	type NewFilmInfo struct {
-		Id          int    `json:"id"`
-		Name        string `json:"name"`
-		PicUrl      string `json:"url"`
-		Description string `json:"description"`
+		Hash   uint32 `json:"hash"`
+		Name   string `json:"name"`
+		PicUrl string `json:"pic_url"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -113,7 +113,6 @@ func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 
 		var films []NewFilmInfo
 
-		// ADD BATCH HERE / TRANSACTION
 		////////////////////////////////////////
 		dbFilms, err := serv.Store.Film().GetNewFilms(newFilmNum)
 		if err != nil {
@@ -122,12 +121,11 @@ func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 			return
 		}
 
-		for i := 0; i < newFilmNum; i++ {
+		for i := 0; i < len(dbFilms); i++ {
 			newFilm := NewFilmInfo{
-				Id:          i,
-				Name:        dbFilms[i].Name,
-				PicUrl:      dbFilms[i].PicUrl,
-				Description: dbFilms[i].DescPath,
+				Name:   dbFilms[i].Name,
+				PicUrl: dbFilms[i].PicUrl,
+				Hash:   dbFilms[i].Hash,
 			}
 			films = append(films, newFilm)
 		}
@@ -147,30 +145,38 @@ func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 // @Summary GET Current Film
 // @Tags W/O AUTH
 // @Produce json
-// @Param name query string true "Film name"
+// @Param hash path uint32 true "Film Hash"
 // @Success      200  {object} model.Film
 // @Failure      500  {string}  string
-// @Router /api/film [get]
+// @Router /film/{hash} [get]
 func (serv *Server) HandleGetCurrentFilm() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !r.URL.Query().Has("name") {
-			logrus.Error("request for film w/o name")
-			serv.error(w, r, http.StatusBadRequest, "no film provided")
+		// if !r.URL.Query().Has("name") {
+		// 	logrus.Error("request for film w/o name")
+		// 	serv.error(w, r, http.StatusBadRequest, "no film provided")
+		// 	return
+		// }
+
+		// name := r.URL.Query().Get("name")
+		// var hash uint32 = 1
+		hash, err := strconv.ParseUint(mux.Vars(r)["hash"], 10, 32)
+		if err != nil {
+			serv.Logger.Error("request for film wrong hash: [%w]", err)
+			serv.error(w, r, http.StatusBadRequest, "bad hash")
 			return
 		}
+		serv.Logger.Info(hash)
 
-		name := r.URL.Query().Get("name")
-
-		film, err := serv.Store.Film().FindByName(name)
+		film, err := serv.Store.Film().FindByHash(uint32(hash))
 		if err != nil {
-			logrus.Error("unable to find film with its name: ", err)
+			serv.Logger.Error("unable to find film with its name: ", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
 		}
 
 		ans, err := json.Marshal(film)
 		if err != nil {
-			logrus.Error("unable to marshal film: ", err)
+			serv.Logger.Error("unable to marshal film: ", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
 			return
 		}
@@ -185,20 +191,20 @@ func (serv *Server) HandleGetCurrentFilm() http.HandlerFunc {
 // @Produce      json
 // @Param films body []server.handleAddFilms.AddFilmInfo true "films info"
 // @Success      200  {string} string "Films added"
+// @Failure      405  {string}  string
 // @Failure      422  {string}  string
-// @Router /api/add/films [post]
-// /api/admin/add/films [post]
+// @Router /add/films [post]
 func (serv *Server) handleAddFilms() http.HandlerFunc {
 
 	type AddFilmInfo struct {
 		Name        string   `json:"name"`
-		PicUrl      string   `json:"url"`
-		DescPath    string   `json:"description,omitempty"`
-		FilmPath    string   `json:"film,omitempty"`
-		TrailerPath string   `json:"trailer,omitempty"`
+		PicUrl      string   `json:"pic_url"`
+		Description string   `json:"description"`
+		FilmUrl     string   `json:"film_url,omitempty"`
+		TrailerUrl  string   `json:"trailer_url,omitempty"`
 		Categories  []string `json:"categories,omitempty"`
 		Rights      []string `json:"rights,omitempty"`
-		Rating      int      `json:"rating"`
+		Rating      int      `json:"rating,omitempty"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -208,7 +214,7 @@ func (serv *Server) handleAddFilms() http.HandlerFunc {
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
 			serv.error(w, r, http.StatusBadRequest, "BAD REQUEST")
-			logrus.Error("DECODE BODY ERROR: ", err)
+			serv.Logger.Errorf("DECODE BODY ERROR: [%w]", err)
 			return
 		}
 
@@ -216,7 +222,7 @@ func (serv *Server) handleAddFilms() http.HandlerFunc {
 
 			hash := utils.Hash([]byte(req[i].Name))
 			if err != nil {
-				logrus.Error("hash algo error", err)
+				serv.Logger.Errorf("hash algo error: [%w]", err)
 				serv.error(w, r, http.StatusInternalServerError, "")
 				return
 			}
@@ -225,9 +231,9 @@ func (serv *Server) handleAddFilms() http.HandlerFunc {
 				Name:        req[i].Name,
 				PicUrl:      req[i].PicUrl,
 				Hash:        hash,
-				DescPath:    req[i].DescPath,
-				FilmPath:    req[i].FilmPath,
-				TrailerPath: req[i].TrailerPath,
+				Description: req[i].Description,
+				FilmUrl:     req[i].FilmUrl,
+				TrailerUrl:  req[i].TrailerUrl,
 				Categories:  req[i].Categories,
 				Rights:      req[i].Rights,
 				Rating:      req[i].Rating,
@@ -235,7 +241,7 @@ func (serv *Server) handleAddFilms() http.HandlerFunc {
 		}
 		err = serv.Store.Film().Create(films)
 		if err != nil {
-			logrus.Error("create error", err)
+			serv.Logger.Errorf("create film error: [%w]", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
 			return
 		}
