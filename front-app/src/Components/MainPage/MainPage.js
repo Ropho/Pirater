@@ -50,8 +50,8 @@ export default function MainPage()
 
     return(
         <main>
-            <Carousel      data = {dataCarouselMock}/>
-            <FilmContainer data = {dataNewsMock} />
+            <Carousel      data = {dataCarousel}/>
+            <FilmContainer data = {dataNews} />
         </main>
     ); 
 }

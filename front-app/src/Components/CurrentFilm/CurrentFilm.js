@@ -1,24 +1,21 @@
 import React, { useEffect, useState } from 'react'
-import { BACKEND_URL } from '../config/Constants'
+import { PATH_CUR_FILM } from '../config/Constants'
 import { useParams } from 'react-router-dom'
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
+import VideoPlayer from '../VideoPlayer/VideoPlayerMain'
 import  './CurrentFilm.css'
-import { Typography } from '@mui/material';
 
-function ImageContainer()
+
+function AfishaContainer(props)
 {
   return (
     <div className = "afisha--container">
-      <img className = "afisha--img--content" src="/john.jpeg" />
+      <img className = "afisha--img--content" src={props.data.pic_url} />
       <div className = "afisha--text--content">
       <div className='film--name--block'> 
-        <div className='film--name'>Джон Кеков</div>
-        <div className='film--category'> Шутер, повседневность, этти </div>
+        <div className='film--name'>{props.data.name}</div>
+        <div className='film--category'> {() => props.data.categories.map((element) => element)} </div>
       </div>
-      <div className='film--description'> John Wick is an American action thriller media franchise created by 
-      Derek Kolstad and centered around John Wick, a former hitman who is forced back into the criminal underworld he had previously abandoned. 
-      The franchise began with the release of John Wick in 2014, followed by three sequels: Chapter 2 in 2017, Chapter 3 – Parabellum in 2019, and Chapter 4 in 2023.</div>
+      <div className='film--description'> {props.data.description}</div>
       </div>
     </div>
   );
@@ -32,8 +29,7 @@ export default function CurrentFilm()
     let params = useParams()
 
     useEffect(() => {
-
-        fetch(BACKEND_URL + `/currentFilm/${params.hash}`)
+        fetch(PATH_CUR_FILM + `/${params.hash}`)
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -52,7 +48,10 @@ export default function CurrentFilm()
 
     return(
         <div className= "current--container">
-          <ImageContainer/>
+          <AfishaContainer data = {filmData} />
+          <div className='videoPlayer--container'>
+            <VideoPlayer />
+          </div>
         </div>
     )
 }

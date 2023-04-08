@@ -80,3 +80,15 @@
     margin-left: 3.5rem;
     overflow-wrap: break-word;
 }
+
+
+.videoPlayer--container{
+    display: flex;
+    justify-content: center;
+    height: 95vh;
+    width: 95%;
+    margin: auto;
+    margin-top: 7rem;
+    min-width: 1080px;
+    min-height: 720px;
+}
