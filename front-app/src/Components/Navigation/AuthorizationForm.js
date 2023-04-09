@@ -1,25 +1,40 @@
 import React from 'react'
+import Modal from 'react-modal';
 import "./Authorization.css"
+
+Modal.setAppElement('#root');
+
 
 export default function LoginForm(props)
 {
+    const [userFormData, setUserFormData] = React.useState({
+        email: "",
+        pass: "",
+    });
+
+    const [isReg, setIsReg] = React.useState(false)
+
+
+    function modalClose()
+    {
+        props.setModalIsOpen(false)
+        setUserFormData({
+            email: "",
+            pass: "",
+        })
+        setIsReg(false);
+    }
 
     function handleSubmit(event)
     {
+        modalClose()
         event.preventDefault()
-        props.modalHandler(false);
-        props.userHandler((prevFormData) => {
-            return{
-                ...prevFormData,
-                isLogin:true,
-            }
-        })
-        console.log(props.user)
+        console.log(userFormData)
     }
 
     function handleChange(event)
     {   
-        props.userHandler(prevFormData => {
+        setUserFormData(prevFormData => {
         return{
             ...prevFormData,
             [event.target.name]: event.target.value
@@ -29,23 +44,31 @@ export default function LoginForm(props)
 
 
     return(
-    <div className='form--container'>
-    <form onSubmit={handleSubmit}>
-        <h3>Run a Rig</h3>
-        <input type="text" 
-               name="login" 
-               placeholder='Login' 
-               value={props.user.login} 
-               onChange={handleChange}/>
+    <Modal
+    isOpen={props.modalIsOpen} 
+    onRequestClose={() => modalClose()} 
+    className="Modal--container"
+    overlayClassName="Modal--overlay">
 
-        <input type="password" 
-               name="password" 
-               placeholder='Password' 
-               value={props.user.password}
-               onChange={handleChange}/>
+        <form onSubmit={handleSubmit}>
+            <h3>{isReg ? "Welcome aboard" : "Run a Rig"}</h3>
+            <input type="email" 
+                   name="email" 
+                   placeholder='Email' 
+                   value={userFormData.email} 
+                   onChange={handleChange}/>
 
-        <button>Login</button>
-    </form>
-    </div>
+            <input type="password" 
+                   name="pass" 
+                   placeholder='Password' 
+                   value={userFormData.pass}
+                   onChange={handleChange}/>
+
+            <button>{ isReg ? "Sign Up" : "Sign In"}</button>
+        </form>
+        <div className='signup--text' onClick = {() => {setIsReg(true)}}>
+            {isReg ? "" : "Sign up"}
+        </div>
+    </Modal>
     );
 }
