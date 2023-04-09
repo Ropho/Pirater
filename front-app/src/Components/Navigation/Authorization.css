@@ -1,25 +1,40 @@
 form{
+  left: 200px;
   display: flex;
   flex-direction: column;
-  gap:24pt;
-  margin-top: 50px;
+  gap:25pt;
   align-items: center;
   justify-content: center;
-  position: relative;
-  background: url(/public/octopus.svg) no-repeat center center fixed;
-  background-size: cover;
-  object-fit: cover;
   border-radius: 5rem;
-  height: 50vh;
+  height: 450px;
   max-height: 600px;
 }
 
-.form--container{
-  display: block;
-  width: 100%;
-  max-width: 600px;
+.Modal--container{
+  display: flex;
+  justify-content: center;
+  position: relative;
+  background-image: url("/public/octopus.svg");
+  background-size: cover;
+  width: 600px;
+  margin:auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border-radius: 5rem;
+  height: 600px;
+  margin-top: 6.5%;
 }
 
+.Modal--overlay{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  opacity: 1;
+}
+
+input[type="email"],
 input[type="text"],
 input[type="password"] {
   padding: 10px;
@@ -27,7 +42,7 @@ input[type="password"] {
   border: 1px solid #ccc;
   font-size: 16pt;
   width: 100%;
-  max-width: 200px;
+  max-width: 250px;
   background-color: #52525C;
   font-family:'Montserrat', sans-serif ;
   color:white;
@@ -37,8 +52,6 @@ input[type="password"] {
   opacity: 1;
   color:whitesmoke;
 }
-
-
 
 button{
   padding: 12pt 20pt;
@@ -65,24 +78,18 @@ h3{
   color:whitesmoke;
 }
 
-.Modal--container{
-  width: 85%;
-  max-width: 600px;
-  margin:auto;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  border-radius: 5rem;
-  height: 50vh;
-  max-height: 600px;
+.signup--text{
+  position: absolute;
+  bottom: 35px;
+  right: 60px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
+  font-size: 16pt;
+  color:#363740;
 }
 
-.Modal--overlay{
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  opacity: 1;
+.signup--text:hover{
+  color:whitesmoke;
 }
 
 .ReactModal__Body--open {
