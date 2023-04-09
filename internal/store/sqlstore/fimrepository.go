@@ -1,8 +1,9 @@
 package sqlstore
 
 import (
-	film "github.com/Ropho/Cinema/internal/model/film"
-	"github.com/sirupsen/logrus"
+	"fmt"
+
+	film "github.com/Ropho/Pirater/internal/model/film"
 )
 
 type SqlFilmRepository struct {
@@ -26,39 +27,13 @@ func (r *SqlFilmRepository) Create(films []film.Film) error {
 		}
 	}
 
-	// logrus.Info(command)
-	// logrus.Info(params...)
-	// stmt, err := r.store.Db.Prepare(command)
-	// if err != nil {
-	// 	logrus.Fatal("PREPARE INSERT ERROR: ", err)
-	// 	return err
-	// }
-
 	_, err := r.store.Db.Exec(command, params...)
 	if err != nil {
-		logrus.Error("EXEC INSERT ERROR: ", err)
-		return err
+		return fmt.Errorf("EXEC INSERT ERROR: [%w]", err)
 	}
 
 	return nil
 }
-
-// func (r *SqlFilmRepository) FindById(id int) (*film.Film, error) {
-
-// 	f := &film.Film{
-// 		Id: id,
-// 	}
-
-// 	err := r.store.Db.QueryRow(
-// 		"SELECT name, location, description, url FROM films WHERE id = ?", id).Scan(
-// 		&f.Name, &f.FilmPath, &f.DescPath, &f.PicUrl)
-// 	if err != nil {
-// 		logrus.Error("find film by id error: ", err)
-// 		return nil, err
-// 	}
-
-// 	return f, nil
-// }
 
 func (r *SqlFilmRepository) FindByHash(hash uint32) (*film.Film, error) {
 
@@ -69,8 +44,7 @@ func (r *SqlFilmRepository) FindByHash(hash uint32) (*film.Film, error) {
 	err := r.store.Db.QueryRow("SELECT id, name, trailer_url, film_url, description, pic_url, rating FROM films WHERE hash = ?", f.Hash).Scan(
 		&f.Id, &f.Name, &f.TrailerUrl, &f.FilmUrl, &f.Description, &f.PicUrl, &f.Rating)
 	if err != nil {
-		logrus.Error("find film by hash error: ", err)
-		return nil, err
+		return nil, fmt.Errorf("find film by hash error: [%w]", err)
 	}
 
 	return f, nil
@@ -82,8 +56,7 @@ func (r *SqlFilmRepository) CountAllRows() (int, error) {
 
 	err := r.store.Db.QueryRow("SELECT COUNT(*) FROM films").Scan(&cnt)
 	if err != nil {
-		logrus.Error("count films error: ", err)
-		return 0, err
+		return 0, fmt.Errorf("count films error: [%w]", err)
 	}
 
 	return cnt, nil
@@ -97,8 +70,7 @@ func (r *SqlFilmRepository) GetRandomFilms(num int) ([]film.Film, error) {
 			"ORDER BY RAND() "+
 			"LIMIT ?", num)
 	if err != nil {
-		logrus.Error("select random ", num, " rows error: ", err)
-		return nil, err
+		return nil, fmt.Errorf("select random %d rows error [%w]", num, err)
 	}
 	defer rows.Close()
 
@@ -109,15 +81,13 @@ func (r *SqlFilmRepository) GetRandomFilms(num int) ([]film.Film, error) {
 		if err := rows.Scan(
 			&tmpFilm.Name, &tmpFilm.Hash, &tmpFilm.TrailerUrl, &tmpFilm.FilmUrl,
 			&tmpFilm.Description, &tmpFilm.PicUrl, &tmpFilm.Rating); err != nil {
-			logrus.Error("scan rows error: ", err)
-			return nil, err
+			return nil, fmt.Errorf("scan rows error: [%w]", err)
 		}
 
 		films = append(films, tmpFilm)
 	}
 	if err := rows.Err(); err != nil {
-		logrus.Error("get random films error: ", err)
-		return nil, err
+		return nil, fmt.Errorf("get random films error: [%w]", err)
 	}
 
 	return films, err
@@ -133,8 +103,7 @@ func (r *SqlFilmRepository) GetNewFilms(num int) ([]film.Film, error) {
 			"ORDER BY STR_TO_DATE(`added`,'%m/%d/%Y %h:%i:%s %p')"+
 			"LIMIT ?", num)
 	if err != nil {
-		logrus.Error("select random ", num, " rows error: ", err)
-		return nil, err
+		return nil, fmt.Errorf("select random %d rows error: [%w]", num, err)
 	}
 	defer rows.Close()
 
@@ -142,18 +111,14 @@ func (r *SqlFilmRepository) GetNewFilms(num int) ([]film.Film, error) {
 		var tmpFilm film.Film
 		if err := rows.Scan(&tmpFilm.Timestamp, &tmpFilm.Name, &tmpFilm.Hash, &tmpFilm.TrailerUrl, &tmpFilm.FilmUrl,
 			&tmpFilm.Description, &tmpFilm.PicUrl, &tmpFilm.Rating); err != nil {
-			logrus.Error("scan rows error: ", err)
-			return nil, err
+			return nil, fmt.Errorf("scan rows error: [%w]", err)
 		}
 
 		films = append(films, tmpFilm)
 	}
 	if err := rows.Err(); err != nil {
-		logrus.Error("get new films error: ", err)
-		return nil, err
+		return nil, fmt.Errorf("get new films error: [%w]", err)
 	}
 
 	return films, err
 }
-
-// all without hash

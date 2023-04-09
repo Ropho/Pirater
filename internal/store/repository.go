@@ -1,8 +1,8 @@
 package store
 
 import (
-	film "github.com/Ropho/Cinema/internal/model/film"
-	user "github.com/Ropho/Cinema/internal/model/user"
+	film "github.com/Ropho/Pirater/internal/model/film"
+	user "github.com/Ropho/Pirater/internal/model/user"
 )
 
 type UserRepository interface {

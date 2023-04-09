@@ -5,7 +5,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/Ropho/Cinema/internal/store"
+	"github.com/Ropho/Pirater/internal/store"
 )
 
 type SqlStore struct {
@@ -41,11 +41,3 @@ func (st *SqlStore) Film() store.FilmRepository {
 	}
 	return st.FilmRepo
 }
-
-// func CloseStore(db *sql.DB) error {
-// 	if err := db.Close(); err != nil {
-// 		logrus.Error("unable to close sql db")
-// 		return err
-// 	}
-// 	return nil
-// }

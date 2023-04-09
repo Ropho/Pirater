@@ -1,8 +1,10 @@
 package main
 
 import (
-	"github.com/Ropho/Cinema/config"
-	"github.com/Ropho/Cinema/internal/server"
+	"flag"
+
+	"github.com/Ropho/Pirater/config"
+	"github.com/Ropho/Pirater/internal/server"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -26,7 +28,10 @@ func init() {
 
 func main() {
 
-	conf, err := config.NewConfig()
+	configFile := flag.String("config", "config.yaml", "input custom config")
+	flag.Parse()
+
+	conf, err := config.NewConfig(*configFile)
 	if err != nil {
 		DefaultLogger.Fatalf("unable to init config: [%w]", err)
 	}
@@ -37,6 +42,6 @@ func main() {
 	}
 
 	if err := serv.Start(); err != nil {
-		serv.Logger.Panicf("unable to start server: [%w]", err)
+		serv.Logger.Fatalf("unable to start server: [%w]", err)
 	}
 }

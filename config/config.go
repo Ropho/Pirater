@@ -8,6 +8,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	ConfigDir = "./config/"
+	EnvFile   = "key.env"
+)
+
 type ServerConfig struct {
 	Addr string `yaml:"addr"`
 	Port int    `yaml:"port"`
@@ -21,10 +26,6 @@ type DBaseConfig struct {
 	Port int    `yaml:"port"`
 }
 
-// type ApiConfig struct {
-// SwaggerUrl string `yaml:"swagger_url"`
-// }
-
 type EnvVar struct {
 	SessionName string `yaml:"session_name"`
 	CookieKey   string `yaml:"cookie_key"`
@@ -37,14 +38,13 @@ type LogConfig struct {
 type Config struct {
 	Server ServerConfig `yaml:"server"`
 	DBase  DBaseConfig  `yaml:"db"`
-	// Api    ApiConfig    `yaml:"api"`
-	Log LogConfig `yaml:"log"`
-	Env EnvVar
+	Log    LogConfig    `yaml:"log"`
+	Env    EnvVar
 }
 
-func NewConfig() (*Config, error) {
+func NewConfig(configFile string) (*Config, error) {
 
-	data, err := os.ReadFile("./config/config.yaml")
+	data, err := os.ReadFile(ConfigDir + configFile)
 	if err != nil {
 		return nil, fmt.Errorf("read config error: [%w]", err)
 	}
@@ -65,7 +65,7 @@ func NewConfig() (*Config, error) {
 
 func getEnvVar(conf *Config) error {
 
-	err := godotenv.Load("./config/key.env")
+	err := godotenv.Load(ConfigDir + EnvFile)
 	if err != nil {
 		return fmt.Errorf("error loading .env file: [%w]", err)
 	}

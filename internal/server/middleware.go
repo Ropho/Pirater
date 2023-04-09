@@ -6,8 +6,10 @@ import (
 	"net/http"
 	"time"
 
+	user "github.com/Ropho/Pirater/internal/model/user"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 )
 
 func (serv *Server) authenticateUser(next http.Handler) http.Handler {
@@ -17,33 +19,52 @@ func (serv *Server) authenticateUser(next http.Handler) http.Handler {
 		session, err := serv.SessionStore.Get(r, serv.Config.Env.SessionName)
 		if err != nil {
 			serv.error(w, r, http.StatusInternalServerError, "SESSION ERROR")
-			logrus.Error("session get error: ", err)
+			serv.Logger.Errorf("session get error: [%w]", err)
 			return
 		}
 
 		id, ok := session.Values["user_id"]
 		if !ok {
 			serv.error(w, r, http.StatusNetworkAuthenticationRequired, "UNABLE TO AUTH")
-			logrus.Error("GET USER_ID ERROR: ", err)
+			serv.Logger.Error("Authentication: GET USER_ID ERROR")
 			return
 		}
-
-		// logrus.Info(id)
 
 		u, err := serv.Store.User().FindById(id.(int))
 		if err != nil {
 			serv.error(w, r, http.StatusNetworkAuthenticationRequired, "UNABLE TO AUTH")
-			logrus.Error("FIND USER BY ID ERROR: ", err)
+			serv.Logger.Errorf("Authentication: FIND USER BY ID ERROR: [%w]", err)
 			return
 		}
 
-		logrus.Info("AUTHENTICATE USER GOOD")
+		serv.Logger.Info("AUTHENTICATE USER GOOD")
 
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyUser, u)))
 	})
 }
 
-func (s *Server) setRequestId(next http.Handler) http.Handler {
+func (serv *Server) authorizeAdmin(next http.Handler) http.Handler {
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		u, ok := r.Context().Value(ctxKeyUser).(*user.User)
+		if !ok {
+			serv.error(w, r, http.StatusNetworkAuthenticationRequired, "not found user")
+			serv.Logger.Error("not found user")
+			return
+		}
+
+		if u.Right != user.Admin {
+			serv.error(w, r, http.StatusNetworkAuthenticationRequired, "UNABLE TO AUTHORIZE ADMIN")
+			serv.Logger.Error("not admin: ", u)
+			return
+		}
+		serv.Logger.Info("Authorize Admin GOOD")
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (serv *Server) setRequestId(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		id := uuid.New().String()
@@ -52,9 +73,9 @@ func (s *Server) setRequestId(next http.Handler) http.Handler {
 	})
 }
 
-func (s *Server) logRequest(next http.Handler) http.Handler {
+func (serv *Server) logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		logger := s.Logger.WithFields(logrus.Fields{
+		logger := serv.Logger.WithFields(log.Fields{
 			"remote_addr": r.RemoteAddr,
 			"request_id":  r.Context().Value(ctxKeyRequestId),
 		})

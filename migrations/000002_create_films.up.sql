@@ -1,6 +1,6 @@
 CREATE TABLE films (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR (50) UNIQUE NOT NULL,
+    name VARCHAR (300) UNIQUE NOT NULL,
     pic_url VARCHAR (300) NOT NULL,
     film_url VARCHAR (300) NOT NULL,
     trailer_url VARCHAR (300) NOT NULL,

@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Ropho/Cinema/config"
+	"github.com/Ropho/Pirater/config"
 
-	"github.com/Ropho/Cinema/internal/store"
+	"github.com/Ropho/Pirater/internal/store"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	log "github.com/sirupsen/logrus"
@@ -17,8 +17,6 @@ import (
 type ctxKey int8
 
 const (
-	// videoDir = "./video"
-
 	ctxKeyUser ctxKey = iota
 	ctxKeyRequestId
 )
@@ -29,8 +27,7 @@ type Server struct {
 	Store        store.Store
 	Config       *config.Config
 	SessionStore sessions.Store
-	// SwaggerUrl   string
-	Logger *log.Logger
+	Logger       *log.Logger
 }
 
 func newDb(conf *config.DBaseConfig, logger *log.Logger) (*sql.DB, error) {
@@ -39,13 +36,13 @@ func newDb(conf *config.DBaseConfig, logger *log.Logger) (*sql.DB, error) {
 	// db, err := sql.Open("mysql", "root:2280@tcp(127.0.0.1:3307)/test")
 	db, err := sql.Open("mysql", url)
 	if err != nil {
-		logger.Error("sql db open error: ", err)
+		logger.Errorf("sql db open error: [%w]", err)
 		return nil, err
 	}
 
 	err = db.Ping()
 	if err != nil {
-		logger.Error("db connect error: ", err)
+		logger.Errorf("db connect error: [%w]", err)
 		return nil, err
 	}
 

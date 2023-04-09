@@ -1,8 +1,9 @@
 package teststore
 
 import (
-	user "github.com/Ropho/Cinema/internal/model/user"
+	user "github.com/Ropho/Pirater/internal/model/user"
 	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type UserRepo struct {
@@ -13,13 +14,13 @@ func (r *UserRepo) Create(u *user.User) error {
 
 	stmt, err := r.store.Db.Prepare("INSERT INTO users(email, pass) VALUES (?, ?)")
 	if err != nil {
-		logrus.Fatal("PREPARE INSERT ERROR: ", err)
+		log.Fatal("PREPARE INSERT ERROR: ", err)
 		return err
 	}
 
 	_, err = stmt.Exec(u.Email, u.EncryptedPass)
 	if err != nil {
-		logrus.Error("EXEC INSERT ERROR: ", err)
+		log.Error("EXEC INSERT ERROR: ", err)
 		return err
 	}
 
@@ -34,7 +35,7 @@ func (r *UserRepo) FindByEmail(email string) (*user.User, error) {
 
 	err := r.store.Db.QueryRow("SELECT id, pass FROM users WHERE email = ?", email).Scan(&u.Id, &u.EncryptedPass)
 	if err != nil {
-		logrus.Error("FIND USER BY EMAIL ERROR: ", err)
+		log.Error("FIND USER BY EMAIL ERROR: ", err)
 		return nil, err
 	}
 	// logrus.Info(u)

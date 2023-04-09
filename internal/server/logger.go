@@ -5,7 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/Ropho/Cinema/config"
+	"github.com/Ropho/Pirater/config"
 )
 
 func NewLogger(conf *config.LogConfig) (*log.Logger, error) {

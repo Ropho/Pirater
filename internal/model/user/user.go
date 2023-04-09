@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -9,11 +10,28 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type RightType string
+
+const (
+	Default   RightType = "DEFAULT"
+	Premium   RightType = "PREMIUM"
+	Moderator RightType = "MODERATOR"
+	Admin     RightType = "ADMIN"
+)
+
+var UserRights = map[RightType]int{
+	Default:   1,
+	Premium:   2,
+	Moderator: 3,
+	Admin:     4,
+}
+
 type User struct {
 	Id            int       `json:"id"`
 	Email         string    `json:"email"`
 	Pass          string    `json:"pass,omitempty"`
 	EncryptedPass string    `json:"-"`
+	Right         RightType `json:"right"`
 	Registered    time.Time `json:"registered,omitempty"`
 }
 
@@ -39,10 +57,15 @@ func (u *User) BeforeCreate() error {
 
 func Validate(u *User) error {
 
-	return validation.ValidateStruct(u,
+	err := validation.ValidateStruct(u,
 		validation.Field(&u.Email, validation.Required, is.Email),
 		validation.Field(&u.Pass, validation.By(requiredIf(u.EncryptedPass == "")),
 			validation.Length(3, 20)))
+	if err != nil {
+		return fmt.Errorf("validation error: [%w]", err)
+	}
+
+	return nil
 }
 
 func (u *User) Sanitize() {
@@ -50,9 +73,6 @@ func (u *User) Sanitize() {
 }
 
 func EncryptPass(s string) (string, error) {
-
-	// r := rand.New(rand.NewSource(99))
-	// passLen := r.Int() % 32
 
 	data, err := bcrypt.GenerateFromPassword([]byte(s), bcrypt.MinCost)
 	if err != nil {

@@ -5,11 +5,10 @@ import (
 	"net/http"
 	"strconv"
 
-	film "github.com/Ropho/Cinema/internal/model/film"
+	film "github.com/Ropho/Pirater/internal/model/film"
 	"github.com/gorilla/mux"
 
-	"github.com/Ropho/Cinema/internal/utils"
-	"github.com/sirupsen/logrus"
+	"github.com/Ropho/Pirater/internal/utils"
 )
 
 // Session Create godoc
@@ -31,29 +30,27 @@ func (serv *Server) handleGetCarousel() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		if !r.URL.Query().Has("count") {
-			logrus.Error("count of film not given")
+			serv.Logger.Error("count of film not given")
 			serv.error(w, r, http.StatusBadRequest, "count of films not given")
 			return
 		}
 		carouselNum, err := strconv.Atoi(r.URL.Query().Get("count"))
 		if err != nil {
-			logrus.Error("unable to get number from given number of films")
+			serv.Logger.Error("unable to get number from given number of films")
 			serv.error(w, r, http.StatusBadRequest, "bad given number of films")
 			return
 		}
 		if carouselNum < 0 {
-			logrus.Error("carousel film count negative: ")
+			serv.Logger.Error("carousel film count negative")
 			serv.error(w, r, http.StatusBadRequest, "")
 			return
 		}
 
 		var films []CarouselFilmInfo
 
-		// ADD BATCH HERE / TRANSACTION
-		////////////////////////////////////////
 		dbFilms, err := serv.Store.Film().GetRandomFilms(carouselNum)
 		if err != nil {
-			logrus.Error("get random films error: ", err)
+			serv.Logger.Errorf("get random films error: [%w]", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
 			return
 		}
@@ -69,7 +66,7 @@ func (serv *Server) handleGetCarousel() http.HandlerFunc {
 
 		ans, err := json.Marshal(films)
 		if err != nil {
-			logrus.Error("unable to marshal film: ", err)
+			serv.Logger.Errorf("unable to marshal film: [%w]", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
 			return
 		}
@@ -95,19 +92,19 @@ func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !r.URL.Query().Has("count") {
-			logrus.Error("count of film not given")
+			serv.Logger.Error("count of film not given")
 			serv.error(w, r, http.StatusBadRequest, "count of films not given")
 			return
 		}
 		newFilmNum, err := strconv.Atoi(r.URL.Query().Get("count"))
 		if err != nil {
-			logrus.Error("unable to get number from given number of films")
+			serv.Logger.Error("unable to get number from given number of films")
 			serv.error(w, r, http.StatusBadRequest, "bad given number of films")
 			return
 		}
 
 		if newFilmNum < 0 {
-			logrus.Error("number of new films negative")
+			serv.Logger.Error("number of new films negative")
 			serv.error(w, r, http.StatusBadRequest, "bad given number of films")
 		}
 
@@ -116,7 +113,7 @@ func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 		////////////////////////////////////////
 		dbFilms, err := serv.Store.Film().GetNewFilms(newFilmNum)
 		if err != nil {
-			logrus.Error("get new films error: ", err)
+			serv.Logger.Errorf("get new films error: [%w]", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
 			return
 		}
@@ -132,7 +129,7 @@ func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 
 		ans, err := json.Marshal(films)
 		if err != nil {
-			logrus.Error("unable to marshal film: ", err)
+			serv.Logger.Errorf("unable to marshal film: [%w]", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
 			return
 		}
@@ -152,31 +149,23 @@ func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 func (serv *Server) HandleGetCurrentFilm() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		// if !r.URL.Query().Has("name") {
-		// 	logrus.Error("request for film w/o name")
-		// 	serv.error(w, r, http.StatusBadRequest, "no film provided")
-		// 	return
-		// }
 
-		// name := r.URL.Query().Get("name")
-		// var hash uint32 = 1
 		hash, err := strconv.ParseUint(mux.Vars(r)["hash"], 10, 32)
 		if err != nil {
 			serv.Logger.Error("request for film wrong hash: [%w]", err)
 			serv.error(w, r, http.StatusBadRequest, "bad hash")
 			return
 		}
-		serv.Logger.Info(hash)
 
 		film, err := serv.Store.Film().FindByHash(uint32(hash))
 		if err != nil {
-			serv.Logger.Error("unable to find film with its name: ", err)
+			serv.Logger.Errorf("unable to find film with its name: [%w]", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
 		}
 
 		ans, err := json.Marshal(film)
 		if err != nil {
-			serv.Logger.Error("unable to marshal film: ", err)
+			serv.Logger.Errorf("unable to marshal film: [%w]", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
 			return
 		}
@@ -193,7 +182,7 @@ func (serv *Server) HandleGetCurrentFilm() http.HandlerFunc {
 // @Success      200  {string} string "Films added"
 // @Failure      405  {string}  string
 // @Failure      422  {string}  string
-// @Router /add/films [post]
+// @Router /private/admin/add/films [post]
 func (serv *Server) handleAddFilms() http.HandlerFunc {
 
 	type AddFilmInfo struct {
@@ -213,8 +202,8 @@ func (serv *Server) handleAddFilms() http.HandlerFunc {
 
 		err := json.NewDecoder(r.Body).Decode(&req)
 		if err != nil {
-			serv.error(w, r, http.StatusBadRequest, "BAD REQUEST")
 			serv.Logger.Errorf("DECODE BODY ERROR: [%w]", err)
+			serv.error(w, r, http.StatusBadRequest, "BAD REQUEST")
 			return
 		}
 

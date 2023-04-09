@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	user "github.com/Ropho/Cinema/internal/model/user"
-	"github.com/sirupsen/logrus"
+	user "github.com/Ropho/Pirater/internal/model/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -25,38 +24,39 @@ type UserClientInfo struct {
 // @Success      400  {string} string
 // @Failure      422  {string}  string
 // @Router /users [post]
-func (s *Server) handleUsersCreate() http.HandlerFunc {
+func (serv *Server) handleUsersCreate() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &UserClientInfo{}
 
 		err := json.NewDecoder(r.Body).Decode(req)
 		if err != nil {
-			s.error(w, r, http.StatusBadRequest, "")
-			logrus.Error("decode body error: ", err)
+			serv.error(w, r, http.StatusBadRequest, "")
+			serv.Logger.Errorf("decode body error: [%w]", err)
 			return
 		}
 
 		u := &user.User{
 			Email: req.Email,
 			Pass:  req.Pass,
+			Right: user.Default,
 		}
 
 		if err := u.BeforeCreate(); err != nil {
-			s.error(w, r, http.StatusBadRequest, "PASS / EMAIL VALIDATION FAIL")
-			logrus.Error("BAD VALIDATION: ", err)
+			serv.error(w, r, http.StatusBadRequest, "PASS / EMAIL VALIDATION FAIL")
+			serv.Logger.Errorf("BAD VALIDATION: [%w]", err)
 			return
 		}
 
-		err = s.Store.User().Create(u)
+		err = serv.Store.User().Create(u)
 		if err != nil {
-			s.error(w, r, http.StatusUnprocessableEntity, "CREATE ERROR")
-			logrus.Error("CREATE ERROR", err)
+			serv.error(w, r, http.StatusUnprocessableEntity, "CREATE ERROR")
+			serv.Logger.Errorf("CREATE ERROR: [%w]", err)
 			return
 		}
 
-		s.respond(w, r, http.StatusCreated, "REGISTERED")
-		logrus.Info("REGISTERED!!!")
+		serv.respond(w, r, http.StatusCreated, "REGISTERED")
+		serv.Logger.Info("REGISTERED!!!")
 	}
 }
 
@@ -66,7 +66,6 @@ func (s *Server) handleUsersCreate() http.HandlerFunc {
 // @Accept       json
 // @Produce      json
 // @Param input body UserClientInfo true "User log"
-// @Header 202 {string} Token "Set-Cookie"
 // @Success      202  {string} string "Happily Logged"
 // @Failure      400  {string} string
 // @Failure      422  {string}  string
@@ -79,7 +78,7 @@ func (serv *Server) handleSessionsCreate() http.HandlerFunc {
 		err := json.NewDecoder(r.Body).Decode(req)
 		if err != nil {
 			serv.error(w, r, http.StatusBadRequest, "")
-			logrus.Error("DECODE BODY ERROR: ", err)
+			serv.Logger.Errorf("DECODE BODY ERROR: [%w]", err)
 			return
 		}
 
@@ -91,35 +90,33 @@ func (serv *Server) handleSessionsCreate() http.HandlerFunc {
 		err = user.Validate(u)
 		if err != nil {
 			serv.error(w, r, http.StatusBadRequest, "VALIDATION ERROR")
-			logrus.Error("VALIDATION USER ERROR: ", err)
+			serv.Logger.Errorf("VALIDATION USER ERROR: [%w]", err)
 			return
 		}
 
 		ans, err := serv.Store.User().FindByEmail(u.Email)
 		if err != nil {
 			serv.error(w, r, http.StatusUnauthorized, "INCORRECT PASS / EMAIL")
-			logrus.Error("FIND BY EMAIL FAIl")
+			serv.Logger.Error("FIND BY EMAIL FAIl")
 			return
 		}
 
 		if err = bcrypt.CompareHashAndPassword([]byte(ans.EncryptedPass), []byte(u.Pass)); err != nil {
 
-			logrus.Error("INCORRECT PASS")
+			serv.Logger.Error("INCORRECT PASS")
 			serv.error(w, r, http.StatusUnauthorized, "INCORRECT PASS / EMAIL")
 
 		} else {
 			session, err := serv.SessionStore.Get(r, serv.Config.Env.SessionName)
 			if err != nil {
-				logrus.Error(err)
+				serv.Logger.Error(err)
 				serv.error(w, r, http.StatusInternalServerError, "session get error")
 				return
 			}
 			session.Values["user_id"] = ans.Id
 
-			logrus.Info("STORED ID", ans.Id)
-
 			if err := session.Save(r, w); err != nil {
-				logrus.Error(err)
+				serv.Logger.Error(err)
 				serv.error(w, r, http.StatusInternalServerError, "session save error")
 				return
 			}
@@ -129,6 +126,11 @@ func (serv *Server) handleSessionsCreate() http.HandlerFunc {
 	}
 }
 
+// WHOAMI godoc
+// @Summary WHOAMI
+// @Tags AUTH
+// @Success      200  {string} string
+// @Router /private/whoami [get]
 func (serv *Server) handleWhoami() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		serv.respond(w, r, http.StatusOK, r.Context().Value(ctxKeyUser).(*user.User).Email)
