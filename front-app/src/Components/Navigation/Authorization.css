@@ -90,6 +90,17 @@ h3{
 
 .signup--text:hover{
   color:whitesmoke;
+  cursor:pointer;
+}
+
+
+.error--text{
+  position: absolute;
+  bottom: 80px;
+  font-family: Montserrat, sans-serif;
+  font-weight: bold;
+  font-size: 12pt;
+  color: #E13737;
 }
 
 .ReactModal__Body--open {

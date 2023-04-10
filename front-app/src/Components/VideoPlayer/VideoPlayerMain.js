@@ -7,7 +7,7 @@ export default function VideoPlayer(props)
 {
     return(
     <ReactHlsPlayer
-      src={BACKEND_URL + "/video/outputlist.m3u8"}
+      src={"http://192.168.31.100/video/3.m3u8"}
       autoPlay={false}
       controls={true}
       width="100%"

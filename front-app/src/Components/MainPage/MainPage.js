@@ -15,7 +15,7 @@ export default function MainPage()
     const [dataNews, setDataNews]   = useState([]);
 
     useEffect(() => {
-        fetch(BACKEND_URL + `/carousel?count=${numberOfElementInCarousel}`)
+        fetch(BACKEND_URL + `/api/carousel?count=${numberOfElementInCarousel}`)
             .then(response => {
                 if (response.ok) {
                     return response.json()
@@ -23,7 +23,6 @@ export default function MainPage()
                 throw new Error('response no OK');                 
             })
             .then(data => {
-                console.log(data)
                 setDataCarousel(data);
             })
             .catch(err => {
@@ -32,7 +31,7 @@ export default function MainPage()
     }, []);
 
     useEffect(() => {
-        fetch(BACKEND_URL + `/newFilms?count=${numberOfElementInNews}`)
+        fetch(BACKEND_URL + `/api/newFilms?count=${numberOfElementInNews}`)
             .then(response => {
                 if (response.ok) {
                     return response.json()
@@ -40,7 +39,6 @@ export default function MainPage()
                 throw new Error('response no OK'); 
             })
             .then(data => {
-                console.log(data)
                 setDataNews(data);
             })
             .catch(error => {
@@ -50,8 +48,8 @@ export default function MainPage()
 
     return(
         <main>
-            <Carousel      data = {dataCarouselMock}/>
-            <FilmContainer data = {dataNewsMock} />
+            <Carousel      data = {dataCarousel}/>
+            <FilmContainer data = {dataNews} />
         </main>
     ); 
 }

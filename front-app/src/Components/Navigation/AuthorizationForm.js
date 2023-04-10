@@ -1,23 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Modal from 'react-modal';
 import "./Authorization.css"
+import {REGISTRATION_URL, SESSIONS_URL} from "../config/Constants"
 
 Modal.setAppElement('#root');
 
 
+
 export default function LoginForm(props)
 {
-    const [userFormData, setUserFormData] = React.useState({
+    const [userFormData, setUserFormData] = useState({
         email: "",
         pass: "",
     });
 
-    const [isReg, setIsReg] = React.useState(false)
+    const [isReg, setIsReg] = useState(false)
+    const [errorMessage, setErrorMessage]   = useState("") 
 
 
     function modalClose()
     {
         props.setModalIsOpen(false)
+        setErrorMessage("")
         setUserFormData({
             email: "",
             pass: "",
@@ -27,9 +31,50 @@ export default function LoginForm(props)
 
     function handleSubmit(event)
     {
-        modalClose()
-        event.preventDefault()
-        console.log(userFormData)
+        if (isReg)
+        {
+            fetch(REGISTRATION_URL, {
+                method: "POST",
+                mode: "cors",
+                body: JSON.stringify(userFormData),
+            })
+            .then(response => {
+                if (response.ok) 
+                {
+                    modalClose();
+                }
+                else
+                {
+                    return response.text();
+                }
+            })
+            .then(text => {
+                setErrorMessage(text)
+            })
+        }
+        else
+        {
+            fetch(SESSIONS_URL, {
+                method: "POST",
+                mode: "cors",
+                body: JSON.stringify(userFormData),
+            })
+            .then(response => {
+                if (response.ok){
+                    modalClose();
+                }
+                else
+                {
+                    return response.text();
+                }
+            })
+            .then(text => {
+                setErrorMessage(text)
+            })
+        }
+
+
+        event.preventDefault();
     }
 
     function handleChange(event)
@@ -66,8 +111,17 @@ export default function LoginForm(props)
 
             <button>{ isReg ? "Sign Up" : "Sign In"}</button>
         </form>
-        <div className='signup--text' onClick = {() => {setIsReg(true)}}>
-            {isReg ? "" : "Sign up"}
+        
+        <div className='error--text'>
+           {errorMessage}
+        </div>
+        
+        <div className='signup--text' onClick = {() => {
+            setIsReg(!isReg)
+            setErrorMessage("")
+            }}
+        >
+            {isReg ? "Sign In" : "Sign up"}
         </div>
     </Modal>
     );

@@ -1,3 +1,7 @@
-export const BACKEND_URL = "http://192.168.31.100/api"
+export const BACKEND_URL = "http://192.168.31.100"
 
-export const PATH_CUR_FILM = BACKEND_URL +"/film"
+export const PATH_CUR_FILM = BACKEND_URL + "/api/film"
+
+export const SESSIONS_URL = BACKEND_URL + "/api/sessions"
+
+export const REGISTRATION_URL = BACKEND_URL + "/api/users"
