@@ -37,7 +37,6 @@ export default function CurrentFilm()
                 throw new Error('response is not OK');                 
             })
             .then(data => {
-                console.log(data);
                 setFilmData(data);
             })
             .catch(err => {
