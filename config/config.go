@@ -18,12 +18,19 @@ type ServerConfig struct {
 	Port int    `yaml:"port"`
 }
 
-type DBaseConfig struct {
+type SqlDBConfig struct {
 	User string `yaml:"user"`
 	Pass string `yaml:"pass"`
 	Name string `yaml:"name"`
 	Addr string `yaml:"addr"`
 	Port int    `yaml:"port"`
+}
+
+type CookieDBConfig struct {
+	Pass    string `yaml:"pass"`
+	Addr    string `yaml:"addr"`
+	Port    int    `yaml:"port"`
+	MaxConn int    `yaml:"max_connections"`
 }
 
 type EnvVar struct {
@@ -36,10 +43,11 @@ type LogConfig struct {
 }
 
 type Config struct {
-	Server ServerConfig `yaml:"server"`
-	DBase  DBaseConfig  `yaml:"db"`
-	Log    LogConfig    `yaml:"log"`
-	Env    EnvVar
+	Server      ServerConfig   `yaml:"server"`
+	SqlDBase    SqlDBConfig    `yaml:"sql_db"`
+	CookieDBase CookieDBConfig `yaml:"cookie_db"`
+	Log         LogConfig      `yaml:"log"`
+	Env         EnvVar
 }
 
 func NewConfig(configFile string) (*Config, error) {

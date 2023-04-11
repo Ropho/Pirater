@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	user "github.com/Ropho/Pirater/internal/model/user"
 	"golang.org/x/crypto/bcrypt"
+
+	user "github.com/Ropho/Pirater/internal/model/user"
 )
 
 type UserClientInfo struct {
@@ -107,7 +108,7 @@ func (serv *Server) handleSessionsCreate() http.HandlerFunc {
 			serv.error(w, r, http.StatusUnauthorized, "INCORRECT PASS / EMAIL")
 
 		} else {
-			session, err := serv.SessionStore.Get(r, serv.Config.Env.SessionName)
+			session, err := serv.Store.Cookie().Get(r, serv.Config.Env.SessionName)
 			if err != nil {
 				serv.Logger.Error(err)
 				serv.error(w, r, http.StatusInternalServerError, "session get error")

@@ -10,8 +10,10 @@ services:
     environment:
     - MYSQL_ROOT_PASSWORD=2280
     - MYSQL_DATABASE=piraterDB
+    command: mysqld --general-log=1 --general-log-file=/var/lib/mysql/general-log.log/log.log
     volumes:
     - db-data:/var/lib/mysql
+    - ./logs/mysql:/var/lib/mysql/general-log.log
 
   
   web_server:
@@ -22,18 +24,26 @@ services:
     network_mode: host
     volumes:
     - ./logs/server:/var/log/nginx
-    # - ./data/images:/usr/share/nginx
-    # - ./data/static:/usr/share/nginx/html
-    # - nginx-data:/etc/nginx
-    # - 80:80
 
 
+  cookie_db:
+    image: redis
+    restart: always
+    ports:
+    - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass 1337
+    volumes:
+    - cookie-data:/data
+    - ./logs/redis:/var/log
+
+    
     # my_app:
     #     image: app:1.0
     #     ports:
     #     - 8080:8080
+
 volumes:
     db-data:
         driver: local
-    # nginx-data:
-        # driver: local
+    cookie-data:
+        driver: local

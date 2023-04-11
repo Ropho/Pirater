@@ -2,39 +2,37 @@ package server
 
 import (
 	"fmt"
-
-	log "github.com/sirupsen/logrus"
-
 	"net/http"
 	"strconv"
 
-	"github.com/Ropho/Pirater/config"
-
-	"github.com/Ropho/Pirater/internal/store/sqlstore"
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	httpSwagger "github.com/swaggo/http-swagger"
+
+	"github.com/Ropho/Pirater/config"
+	"github.com/Ropho/Pirater/internal/store/mainstore"
 )
 
 func NewServer(conf *config.Config, defaultlogger *log.Logger) (*Server, error) {
 
 	logger, err := NewLogger(&conf.Log)
 	if err != nil {
-		logger = defaultlogger
-		logger.Error("init logger from config error, using default")
+		return nil, fmt.Errorf("init logger from config error, using default")
 	}
 
-	db, err := newDb(&conf.DBase, logger)
+	store, err := mainstore.NewStore(conf, logger)
 	if err != nil {
-		return nil, fmt.Errorf("init db error: [%w]", err)
+		return nil, fmt.Errorf("unbale init store: [%w]", err)
 	}
 
 	serv := &Server{
-		IP_Port:      fmt.Sprint(conf.Server.Addr, ":", strconv.Itoa(conf.Server.Port)),
-		Router:       mux.NewRouter(),
-		Store:        sqlstore.NewStore(db),
-		SessionStore: newCookieStore([]byte(conf.Env.CookieKey)),
-		Config:       conf,
-		Logger:       logger,
+		IP_Port: fmt.Sprint(conf.Server.Addr, ":", strconv.Itoa(conf.Server.Port)),
+		Router:  mux.NewRouter(),
+		Store:   store,
+		// Store:   sqlstore.NewStore(db),
+		// SessionStore: newCookieStore([]byte(conf.Env.CookieKey)),
+		Config: conf,
+		Logger: logger,
 	}
 
 	return serv, nil
