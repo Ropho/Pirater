@@ -1,13 +1,24 @@
 server:
     addr: "127.0.0.1"
+    # addr: "192.168.31.100"
     port: 8008
+
+# api:
+    # swagger_url: "http://localhost:8080/swagger/doc.json"
+    # swagger_url: "http://192.168.31.100:8080/swagger/doc.json"
 
 log:
     level: "debug"
 
-db:
+sql_db:
     user: "root"
     pass: "2280"
     name: "piraterDB"
     addr: "127.0.0.1"
     port: 3306
+
+cookie_db:
+    pass: "1337"
+    addr: "127.0.0.1"
+    port: 6379
+    max_connections: 10

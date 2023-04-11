@@ -1,6 +1,10 @@
 package store
 
 import (
+	"net/http"
+
+	"github.com/gorilla/sessions"
+
 	film "github.com/Ropho/Pirater/internal/model/film"
 	user "github.com/Ropho/Pirater/internal/model/user"
 )
@@ -17,4 +21,8 @@ type FilmRepository interface {
 	CountAllRows() (int, error)
 	GetRandomFilms(num int) ([]film.Film, error)
 	GetNewFilms(num int) ([]film.Film, error)
+}
+
+type CookieRepository interface {
+	Get(req *http.Request, sessionName string) (*sessions.Session, error)
 }

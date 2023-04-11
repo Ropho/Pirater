@@ -6,17 +6,17 @@ import (
 	"net/http"
 	"time"
 
-	user "github.com/Ropho/Pirater/internal/model/user"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/google/uuid"
+	user "github.com/Ropho/Pirater/internal/model/user"
 )
 
 func (serv *Server) authenticateUser(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		session, err := serv.SessionStore.Get(r, serv.Config.Env.SessionName)
+		session, err := serv.Store.Cookie().Get(r, serv.Config.Env.SessionName)
 		if err != nil {
 			serv.error(w, r, http.StatusInternalServerError, "SESSION ERROR")
 			serv.Logger.Errorf("session get error: [%w]", err)
