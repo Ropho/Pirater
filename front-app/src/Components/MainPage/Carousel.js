@@ -21,7 +21,7 @@ export default function Carousel(props)
         resetProgress: false,
         autowidth    : true,
         arrows       : false,
-        interval     : 4000,
+        interval     : 3000,
         pagination   : false,
         speed        : 1000,
         perPage: 3,
