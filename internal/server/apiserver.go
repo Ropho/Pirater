@@ -67,7 +67,7 @@ func (serv *Server) initHandlers() {
 	api.HandleFunc("/", serv.handleBase).Methods("GET")
 	api.HandleFunc("/carousel", serv.handleGetCarousel()).Methods("GET")
 	api.HandleFunc("/newFilms", serv.handleGetNewFilms()).Methods("GET")
-	api.HandleFunc("/film/{hash}", serv.HandleGetCurrentFilm()).Methods("GET")
+	api.HandleFunc("/film/{hash}", serv.handleGetCurrentFilm()).Methods("GET")
 
 	api.HandleFunc("/users", serv.handleUsersCreate()).Methods("POST")
 	api.HandleFunc("/sessions", serv.handleSessionsCreate()).Methods("POST")
