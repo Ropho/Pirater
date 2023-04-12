@@ -24,6 +24,8 @@ function AfishaContainer(props)
 
 export default function CurrentFilm()
 {
+    window.scrollTo(0, 0)
+    
     const [filmData, setFilmData] = useState({})
 
     let params = useParams()

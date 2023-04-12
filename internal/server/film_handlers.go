@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	film "github.com/Ropho/Pirater/internal/model/film"
 	"github.com/gorilla/mux"
 
+	film "github.com/Ropho/Pirater/internal/model/film"
 	"github.com/Ropho/Pirater/internal/utils"
 )
 
@@ -22,9 +22,9 @@ import (
 func (serv *Server) handleGetCarousel() http.HandlerFunc {
 
 	type CarouselFilmInfo struct {
-		Hash   uint32 `json:"hash"`
-		Name   string `json:"name"`
-		PicUrl string `json:"pic_url"`
+		Hash      uint32 `json:"hash"`
+		Name      string `json:"name"`
+		HeaderUrl string `json:"pic_url"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +48,7 @@ func (serv *Server) handleGetCarousel() http.HandlerFunc {
 
 		var films []CarouselFilmInfo
 
-		dbFilms, err := serv.Store.Film().GetRandomFilms(carouselNum)
+		dbFilms, err := serv.Store.Film().GetCarouselFilmsInfo(carouselNum)
 		if err != nil {
 			serv.Logger.Errorf("get random films error: [%w]", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
@@ -57,9 +57,9 @@ func (serv *Server) handleGetCarousel() http.HandlerFunc {
 
 		for i := 0; i < len(dbFilms); i++ {
 			carouselFilm := CarouselFilmInfo{
-				Hash:   dbFilms[i].Hash,
-				Name:   dbFilms[i].Name,
-				PicUrl: dbFilms[i].PicUrl,
+				Hash:      dbFilms[i].Hash,
+				Name:      dbFilms[i].Name,
+				HeaderUrl: dbFilms[i].HeaderUrl,
 			}
 			films = append(films, carouselFilm)
 		}
@@ -85,9 +85,9 @@ func (serv *Server) handleGetCarousel() http.HandlerFunc {
 func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 
 	type NewFilmInfo struct {
-		Hash   uint32 `json:"hash"`
-		Name   string `json:"name"`
-		PicUrl string `json:"pic_url"`
+		Hash      uint32 `json:"hash"`
+		Name      string `json:"name"`
+		AfishaUrl string `json:"pic_url"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +111,7 @@ func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 		var films []NewFilmInfo
 
 		////////////////////////////////////////
-		dbFilms, err := serv.Store.Film().GetNewFilms(newFilmNum)
+		dbFilms, err := serv.Store.Film().GetNewFilmsInfo(newFilmNum)
 		if err != nil {
 			serv.Logger.Errorf("get new films error: [%w]", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
@@ -120,9 +120,9 @@ func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 
 		for i := 0; i < len(dbFilms); i++ {
 			newFilm := NewFilmInfo{
-				Name:   dbFilms[i].Name,
-				PicUrl: dbFilms[i].PicUrl,
-				Hash:   dbFilms[i].Hash,
+				Name:      dbFilms[i].Name,
+				AfishaUrl: dbFilms[i].AfishaUrl,
+				Hash:      dbFilms[i].Hash,
 			}
 			films = append(films, newFilm)
 		}
@@ -143,11 +143,21 @@ func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 // @Tags W/O AUTH
 // @Produce json
 // @Param hash path uint32 true "Film Hash"
-// @Success      200  {object} model.Film
+// @Success      200  {object} server.handleGetCurrentFilm.GetFilmInfo
 // @Failure      500  {string}  string
 // @Router /film/{hash} [get]
-func (serv *Server) HandleGetCurrentFilm() http.HandlerFunc {
+func (serv *Server) handleGetCurrentFilm() http.HandlerFunc {
 
+	type GetFilmInfo struct {
+		Name        string   `json:"name"`
+		Hash        uint32   `json:"hash"`
+		Description string   `json:"description"`
+		Categories  []string `json:"categories"`
+		VideoUrl    string   `json:"video_url"`
+		HeaderUrl   string   `json:"header_url"`
+		AfishaUrl   string   `json:"afisha_url"`
+		//CadreUrl []string
+	}
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		hash, err := strconv.ParseUint(mux.Vars(r)["hash"], 10, 32)
@@ -163,7 +173,17 @@ func (serv *Server) HandleGetCurrentFilm() http.HandlerFunc {
 			serv.error(w, r, http.StatusInternalServerError, "")
 		}
 
-		ans, err := json.Marshal(film)
+		filmInfo := &GetFilmInfo{
+			Name:        film.Name,
+			Hash:        film.Hash,
+			Description: film.Description,
+			Categories:  film.Categories,
+			VideoUrl:    film.VideoUrl,
+			HeaderUrl:   film.HeaderUrl,
+			AfishaUrl:   film.AfishaUrl,
+		}
+
+		ans, err := json.Marshal(filmInfo)
 		if err != nil {
 			serv.Logger.Errorf("unable to marshal film: [%w]", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
@@ -187,13 +207,12 @@ func (serv *Server) handleAddFilms() http.HandlerFunc {
 
 	type AddFilmInfo struct {
 		Name        string   `json:"name"`
-		PicUrl      string   `json:"pic_url"`
 		Description string   `json:"description"`
-		FilmUrl     string   `json:"film_url,omitempty"`
-		TrailerUrl  string   `json:"trailer_url,omitempty"`
-		Categories  []string `json:"categories,omitempty"`
-		Rights      []string `json:"rights,omitempty"`
-		Rating      int      `json:"rating,omitempty"`
+		Categories  []string `json:"categories"`
+		VideoUrl    string   `json:"video_url"`
+		HeaderUrl   string   `json:"header_url"`
+		AfishaUrl   string   `json:"afisha_url"`
+		//CadreUrl []string
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -218,16 +237,15 @@ func (serv *Server) handleAddFilms() http.HandlerFunc {
 
 			films = append(films, film.Film{
 				Name:        req[i].Name,
-				PicUrl:      req[i].PicUrl,
 				Hash:        hash,
 				Description: req[i].Description,
-				FilmUrl:     req[i].FilmUrl,
-				TrailerUrl:  req[i].TrailerUrl,
 				Categories:  req[i].Categories,
-				Rights:      req[i].Rights,
-				Rating:      req[i].Rating,
+				VideoUrl:    req[i].VideoUrl,
+				HeaderUrl:   req[i].HeaderUrl,
+				AfishaUrl:   req[i].AfishaUrl,
 			})
 		}
+
 		err = serv.Store.Film().Create(films)
 		if err != nil {
 			serv.Logger.Errorf("create film error: [%w]", err)

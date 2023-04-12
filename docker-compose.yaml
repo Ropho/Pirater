@@ -10,6 +10,7 @@ services:
     environment:
     - MYSQL_ROOT_PASSWORD=2280
     - MYSQL_DATABASE=piraterDB
+    - TZ=Europe/Moscow
     command: mysqld --general-log=1 --general-log-file=/var/lib/mysql/general-log.log/log.log
     volumes:
     - db-data:/var/lib/mysql
