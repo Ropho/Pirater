@@ -19,10 +19,11 @@ type FilmRepository interface {
 	Create(films []film.Film) error
 	FindByHash(hash uint32) (*film.Film, error)
 	CountAllRows() (int, error)
-	GetRandomFilms(num int) ([]film.Film, error)
-	GetNewFilms(num int) ([]film.Film, error)
+	GetCarouselFilmsInfo(num int) ([]film.Film, error)
+	GetNewFilmsInfo(num int) ([]film.Film, error)
 }
 
 type CookieRepository interface {
 	Get(req *http.Request, sessionName string) (*sessions.Session, error)
+	Delete(rsp http.ResponseWriter, req *http.Request, sessionName string) error
 }

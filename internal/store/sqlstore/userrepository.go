@@ -2,6 +2,7 @@ package sqlstore
 
 import (
 	"fmt"
+	"time"
 
 	user "github.com/Ropho/Pirater/internal/model/user"
 )
@@ -18,7 +19,8 @@ func (r *SqlUserRepository) Create(u *user.User) error {
 	}
 	defer tx.Rollback()
 
-	result, err := tx.Exec("INSERT INTO users(email, encr_pass) VALUES (?, ?)", u.Email, u.EncryptedPass)
+	result, err := tx.Exec("INSERT INTO users(email, encr_pass) VALUES (?, ?)",
+		u.Email, u.EncryptedPass)
 	if err != nil {
 		return fmt.Errorf("insert user into \"users\" db error: [%w]", err)
 	}
@@ -47,12 +49,24 @@ func (r *SqlUserRepository) FindByEmail(email string) (*user.User, error) {
 	}
 
 	var right_id int
-	err := r.store.Db.QueryRow("SELECT users.id, users.encr_pass, user_rights.right_id FROM users "+
+	var registered string
+	var modified string
+	err := r.store.Db.QueryRow("SELECT users.id, users.encr_pass, user_rights.right_id, "+
+		"users.registered, users.modified "+
+		"FROM users "+
 		"JOIN user_rights ON users.id = user_rights.user_id "+
 		"WHERE email = ?", email).Scan(
-		&u.Id, &u.EncryptedPass, &right_id)
+		&u.Id, &u.EncryptedPass, &right_id, &registered, &modified)
 	if err != nil {
 		return nil, fmt.Errorf("FIND USER BY EMAIL ERROR: [%w]", err)
+	}
+	u.Registered, err = ParseTime(registered)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse registered time: [%w]", err)
+	}
+	u.Modified, err = ParseTime(modified)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse modified time: [%w]", err)
 	}
 
 	err = r.store.Db.QueryRow("SELECT `right` FROM rights WHERE id = ?", right_id).
@@ -70,12 +84,24 @@ func (r *SqlUserRepository) FindById(id int) (*user.User, error) {
 		Id: id,
 	}
 	var right_id int
-	err := r.store.Db.QueryRow("SELECT users.email, users.encr_pass, user_rights.right_id FROM users "+
+	var registered string
+	var modified string
+	err := r.store.Db.QueryRow("SELECT users.email, users.encr_pass, user_rights.right_id, "+
+		"users.registered, users.modified "+
+		"FROM users "+
 		"JOIN user_rights ON users.id = user_rights.user_id "+
 		"WHERE id = ?", id).
-		Scan(&u.Email, &u.EncryptedPass, &right_id)
+		Scan(&u.Email, &u.EncryptedPass, &right_id, &registered, &modified)
 	if err != nil {
 		return nil, fmt.Errorf("find user by id error: [%w]", err)
+	}
+	u.Registered, err = ParseTime(registered)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse registered time: [%w]", err)
+	}
+	u.Modified, err = ParseTime(modified)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse modified time: [%w]", err)
 	}
 
 	err = r.store.Db.QueryRow("SELECT `right` FROM rights WHERE id = ?", right_id).
@@ -85,4 +111,8 @@ func (r *SqlUserRepository) FindById(id int) (*user.User, error) {
 	}
 
 	return u, nil
+}
+
+func ParseTime(timeArg string) (time.Time, error) {
+	return time.Parse("2006-01-02 15:04:05", timeArg)
 }

@@ -18,8 +18,8 @@ func (serv *Server) authenticateUser(next http.Handler) http.Handler {
 
 		session, err := serv.Store.Cookie().Get(r, serv.Config.Env.SessionName)
 		if err != nil {
-			serv.error(w, r, http.StatusInternalServerError, "SESSION ERROR")
 			serv.Logger.Errorf("session get error: [%w]", err)
+			serv.error(w, r, http.StatusInternalServerError, "SESSION ERROR")
 			return
 		}
 

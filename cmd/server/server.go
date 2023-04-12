@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"time"
 
 	"github.com/Ropho/Pirater/config"
 	"github.com/Ropho/Pirater/internal/server"
@@ -15,8 +16,7 @@ import (
 // @schemes http https
 
 // @host 192.168.31.100:80
-// localhost:80
-// 10.10.132.79:80
+// //@host 10.55.132.27
 
 // @BasePath /api/
 
@@ -24,6 +24,9 @@ var DefaultLogger *log.Logger
 
 func init() {
 	DefaultLogger = log.New()
+
+	loc := time.FixedZone("UTC", 3)
+	time.Local = loc
 }
 
 func main() {

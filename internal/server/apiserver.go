@@ -29,10 +29,8 @@ func NewServer(conf *config.Config, defaultlogger *log.Logger) (*Server, error) 
 		IP_Port: fmt.Sprint(conf.Server.Addr, ":", strconv.Itoa(conf.Server.Port)),
 		Router:  mux.NewRouter(),
 		Store:   store,
-		// Store:   sqlstore.NewStore(db),
-		// SessionStore: newCookieStore([]byte(conf.Env.CookieKey)),
-		Config: conf,
-		Logger: logger,
+		Config:  conf,
+		Logger:  logger,
 	}
 
 	return serv, nil
@@ -41,7 +39,6 @@ func NewServer(conf *config.Config, defaultlogger *log.Logger) (*Server, error) 
 func (serv *Server) Start() error {
 
 	serv.initHandlers()
-
 	serv.Logger.Info("server Starting: ", serv.IP_Port)
 
 	err := http.ListenAndServe(serv.IP_Port, serv.Router)
@@ -54,28 +51,34 @@ func (serv *Server) Start() error {
 
 func (serv *Server) initHandlers() {
 
+	///////////////////////////MIDDLEWARE
 	serv.Router.Use(serv.setRequestId)
 	serv.Router.Use(serv.logRequest)
 
+	///////////////////////////SWAGGER
 	swaggerUrl := "doc.json"
 	serv.Router.PathPrefix("/swagger").HandlerFunc(httpSwagger.Handler(
 		httpSwagger.URL(swaggerUrl), //The url pointing to API definition
 	))
 
+	// //////////////////////////API
 	api := serv.Router.PathPrefix("/api/").Subrouter()
 
 	api.HandleFunc("/", serv.handleBase).Methods("GET")
 	api.HandleFunc("/carousel", serv.handleGetCarousel()).Methods("GET")
 	api.HandleFunc("/newFilms", serv.handleGetNewFilms()).Methods("GET")
-	api.HandleFunc("/film/{hash}", serv.HandleGetCurrentFilm()).Methods("GET")
+	api.HandleFunc("/film/{hash}", serv.handleGetCurrentFilm()).Methods("GET")
 
 	api.HandleFunc("/users", serv.handleUsersCreate()).Methods("POST")
 	api.HandleFunc("/sessions", serv.handleSessionsCreate()).Methods("POST")
 
+	// //////////////////////////PRIVATE
 	private := api.PathPrefix("/private").Subrouter()
 	private.Use(serv.authenticateUser)
 	private.HandleFunc("/whoami", serv.handleWhoami()).Methods("GET")
+	private.HandleFunc("/out", serv.handleSessionsEnd()).Methods("GET")
 
+	// //////////////////////////ADMIN
 	admin := private.PathPrefix("/admin").Subrouter()
 	admin.Use(serv.authorizeAdmin)
 	admin.HandleFunc("/add/films", serv.handleAddFilms()).Methods("POST")

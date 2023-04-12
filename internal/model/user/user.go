@@ -29,10 +29,11 @@ var UserRights = map[RightType]int{
 type User struct {
 	Id            int       `json:"id"`
 	Email         string    `json:"email"`
-	Pass          string    `json:"pass,omitempty"`
+	Pass          string    `json:"-"`
 	EncryptedPass string    `json:"-"`
 	Right         RightType `json:"right"`
-	Registered    time.Time `json:"registered,omitempty"`
+	Registered    time.Time `json:"registered"`
+	Modified      time.Time `json:"modified"`
 }
 
 func (u *User) BeforeCreate() error {
