@@ -1,8 +1,11 @@
 .DEFAULT_GOAL := build
 
+.PHONY: build_front
+build_front:
+	cd front-app && npm run build && cd ..  
+
 .PHONY: build
 build:
-	cd front-app && npm run build && cd ..  ;
 	docker build -t nginxapp .				;
 	go build -v -o ./bin/prog ./cmd/server 	; 
 	swag init -g ./cmd/server/server.go

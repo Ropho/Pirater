@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	film "github.com/Ropho/Pirater/internal/model/film"
 	"github.com/gorilla/mux"
 
+	film "github.com/Ropho/Pirater/internal/model/film"
 	"github.com/Ropho/Pirater/internal/utils"
 )
 

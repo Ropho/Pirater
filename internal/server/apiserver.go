@@ -29,10 +29,8 @@ func NewServer(conf *config.Config, defaultlogger *log.Logger) (*Server, error) 
 		IP_Port: fmt.Sprint(conf.Server.Addr, ":", strconv.Itoa(conf.Server.Port)),
 		Router:  mux.NewRouter(),
 		Store:   store,
-		// Store:   sqlstore.NewStore(db),
-		// SessionStore: newCookieStore([]byte(conf.Env.CookieKey)),
-		Config: conf,
-		Logger: logger,
+		Config:  conf,
+		Logger:  logger,
 	}
 
 	return serv, nil
