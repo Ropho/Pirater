@@ -18,7 +18,7 @@ export default function NavigationBar(props)
 
   return (  
     <div>
-      <NavBarElements setModalIsOpen = {setModalIsOpen} isLogin = {props.userData.isLogin} name = {props.userData.Email} />
+      <NavBarElements setModalIsOpen = {setModalIsOpen} isLogin = {props.userData.isLogin} name = {props.userData.email} />
 
       <AuthorizationForm 
         setModalIsOpen ={setModalIsOpen} 

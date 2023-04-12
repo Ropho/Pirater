@@ -36,8 +36,8 @@ export default function LoginForm(props)
     {
         props.setUserData(() => {
             return{
-                Email  : userFormData.email,
-                Right  : "user",
+                email  : userFormData.email,
+                right  : "user",
                 isLogin: true,
             }
         })
