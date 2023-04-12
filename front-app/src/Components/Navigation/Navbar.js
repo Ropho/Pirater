@@ -16,9 +16,14 @@ export default function NavigationBar(props)
 {
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
+  console.log(props.userData.isLogin)
+  console.log('hehe')
+
   return (  
     <div>
+
       <NavBarElements setModalIsOpen = {setModalIsOpen} isLogin = {props.userData.isLogin} name = {props.userData.email} />
+      <NavBarElements setModalIsOpen = {setModalIsOpen} isLogin = {props.userData.isLogin} name = {props.userData.Email} />
 
       <AuthorizationForm 
         setModalIsOpen ={setModalIsOpen} 
@@ -64,7 +69,8 @@ function NavBarElements(props)
       </ul>
     </div>
     <div className="Navbar--auth">
-      {props.isLogin ? <p onClick ={() => {props.setModalIsOpen(true)}}> {props.name} </p> :
+
+      {props.isLogin ? <p onClick ={() => {props.setModalIsOpen(true)}}> props.name </p> :
                        <button onClick ={() => {props.setModalIsOpen(true)}}> Login </button>
       }
     </div>

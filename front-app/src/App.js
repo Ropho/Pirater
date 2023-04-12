@@ -11,8 +11,9 @@ import { WHOAMI_URL } from './Components/config/Constants';
 function App() {
 
   const [userData, setUserData] = useState({
-    email: "",
-    right: "",
+
+    Email: "",
+    Right: "",
     isLogin: false,
   })
 
@@ -28,10 +29,11 @@ function App() {
     .then(data => {
       data = {...data, isLogin: true}
       setUserData(data)
-      console.log("Cookie YES")
+
+      console.log(userData)
     })
     .catch(() => {
-      console.log("PIZDA")
+      console.log(userData)
     }
     )
   }, [])
