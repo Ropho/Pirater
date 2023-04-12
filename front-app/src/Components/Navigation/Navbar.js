@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState} from 'react'
 import {ReactComponent as Logo} from '../../logo.svg'
-import {NavLink, useMatch, useNavigate, useResolvedPath} from "react-router-dom"
+import {NavLink} from "react-router-dom"
 import "./Navbar.css"
 import AuthorizationForm from "./AuthorizationForm"
 
@@ -15,9 +15,6 @@ let activeStyle = {
 export default function NavigationBar(props)
 {
   const [modalIsOpen, setModalIsOpen] = useState(false);
-
-  console.log(props.userData.isLogin)
-  console.log('hehe')
 
   return (  
     <div>
@@ -67,7 +64,7 @@ function NavBarElements(props)
       </ul>
     </div>
     <div className="Navbar--auth">
-      {props.isLogin ? <p onClick ={() => {props.setModalIsOpen(true)}}> props.name </p> :
+      {props.isLogin ? <p onClick ={() => {props.setModalIsOpen(true)}}> {props.name} </p> :
                        <button onClick ={() => {props.setModalIsOpen(true)}}> Login </button>
       }
     </div>
