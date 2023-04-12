@@ -25,4 +25,5 @@ type FilmRepository interface {
 
 type CookieRepository interface {
 	Get(req *http.Request, sessionName string) (*sessions.Session, error)
+	Delete(rsp http.ResponseWriter, req *http.Request, sessionName string) error
 }

@@ -39,7 +39,6 @@ func NewServer(conf *config.Config, defaultlogger *log.Logger) (*Server, error) 
 func (serv *Server) Start() error {
 
 	serv.initHandlers()
-
 	serv.Logger.Info("server Starting: ", serv.IP_Port)
 
 	err := http.ListenAndServe(serv.IP_Port, serv.Router)
@@ -52,14 +51,17 @@ func (serv *Server) Start() error {
 
 func (serv *Server) initHandlers() {
 
+	///////////////////////////MIDDLEWARE
 	serv.Router.Use(serv.setRequestId)
 	serv.Router.Use(serv.logRequest)
 
+	///////////////////////////SWAGGER
 	swaggerUrl := "doc.json"
 	serv.Router.PathPrefix("/swagger").HandlerFunc(httpSwagger.Handler(
 		httpSwagger.URL(swaggerUrl), //The url pointing to API definition
 	))
 
+	// //////////////////////////API
 	api := serv.Router.PathPrefix("/api/").Subrouter()
 
 	api.HandleFunc("/", serv.handleBase).Methods("GET")
@@ -70,10 +72,13 @@ func (serv *Server) initHandlers() {
 	api.HandleFunc("/users", serv.handleUsersCreate()).Methods("POST")
 	api.HandleFunc("/sessions", serv.handleSessionsCreate()).Methods("POST")
 
+	// //////////////////////////PRIVATE
 	private := api.PathPrefix("/private").Subrouter()
 	private.Use(serv.authenticateUser)
 	private.HandleFunc("/whoami", serv.handleWhoami()).Methods("GET")
+	private.HandleFunc("/out", serv.handleSessionsEnd()).Methods("GET")
 
+	// //////////////////////////ADMIN
 	admin := private.PathPrefix("/admin").Subrouter()
 	admin.Use(serv.authorizeAdmin)
 	admin.HandleFunc("/add/films", serv.handleAddFilms()).Methods("POST")

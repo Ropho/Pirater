@@ -15,8 +15,8 @@ import (
 // @description U can access functions from here
 // @schemes http https
 
-//// @host 192.168.31.100:80
-// @host 172.20.10.10
+// @host 192.168.31.100:80
+// //@host 10.55.132.27
 
 // @BasePath /api/
 

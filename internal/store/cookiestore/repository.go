@@ -44,3 +44,18 @@ func (r *CookieRepository) Get(req *http.Request, sessionName string) (*sessions
 	// }
 
 }
+
+func (r *CookieRepository) Delete(rsp http.ResponseWriter, req *http.Request, sessionName string) error {
+
+	session, err := r.store.RediStore.Get(req, sessionName)
+	if err != nil {
+		return fmt.Errorf("get session error: [%w]", err)
+	}
+
+	session.Options.MaxAge = -1
+	if err = sessions.Save(req, rsp); err != nil {
+		return fmt.Errorf("saving session error: [%w]", err)
+	}
+
+	return nil
+}

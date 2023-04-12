@@ -168,6 +168,27 @@ func (serv *Server) handleSessionsCreate() http.HandlerFunc {
 	}
 }
 
+// Session End godoc
+// @Summary USER LOG OUT
+// @Tags AUTH
+// @Success      202  {string} string "Happily Logged Out"
+// @Failure      400  {string} string
+// @Failure 500 {string} string
+// @Router /private/out [get]
+func (serv *Server) handleSessionsEnd() http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		err := serv.Store.Cookie().Delete(w, r, serv.Config.Env.SessionName)
+		if err != nil {
+			serv.Logger.Errorf("unable to delete session: [%w]", err)
+			serv.error(w, r, http.StatusInternalServerError, "")
+		}
+
+		serv.respond(w, r, http.StatusOK, "LOGGED OUT")
+	}
+}
+
 // WHOAMI godoc
 // @Summary WHOAMI
 // @Tags AUTH
