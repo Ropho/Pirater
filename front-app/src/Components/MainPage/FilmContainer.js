@@ -23,7 +23,8 @@ export default function FilmsGrid(props) {
   
   let images = props.data.map((curFilm) => (
     <ImageContainer 
-    id      = {curFilm.hash} 
+    id      = {curFilm.hash}
+    key     = {curFilm.hash}
     imgUrl  = {curFilm.pic_url} 
     name    = {curFilm.name} 
     hash    = {curFilm.hash}

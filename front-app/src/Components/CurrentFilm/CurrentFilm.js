@@ -24,6 +24,8 @@ function AfishaContainer(props)
 
 export default function CurrentFilm()
 {
+    window.scrollTo(0, 0)
+    
     const [filmData, setFilmData] = useState({})
 
     let params = useParams()
@@ -37,7 +39,6 @@ export default function CurrentFilm()
                 throw new Error('response is not OK');                 
             })
             .then(data => {
-                console.log(data);
                 setFilmData(data);
             })
             .catch(err => {

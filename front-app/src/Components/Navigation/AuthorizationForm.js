@@ -21,12 +21,28 @@ export default function LoginForm(props)
     function modalClose()
     {
         props.setModalIsOpen(false)
+
         setErrorMessage("")
+
         setUserFormData({
             email: "",
             pass: "",
         })
+
         setIsReg(false);
+    }
+
+    function succeedReq()
+    {
+        props.setUserData(() => {
+            return{
+                email  : userFormData.email,
+                right  : "user",
+                isLogin: true,
+            }
+        })
+
+        modalClose()
     }
 
     function handleSubmit(event)
@@ -41,7 +57,7 @@ export default function LoginForm(props)
             .then(response => {
                 if (response.ok) 
                 {
-                    modalClose();
+                    succeedReq();
                 }
                 else
                 {
@@ -61,7 +77,8 @@ export default function LoginForm(props)
             })
             .then(response => {
                 if (response.ok){
-                    modalClose();
+                    console.log("HERE")
+                    succeedReq();
                 }
                 else
                 {
