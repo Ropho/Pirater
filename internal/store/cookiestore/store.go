@@ -35,10 +35,9 @@ func newRediStore(conf *config.Config, logger *log.Logger) (*redistore.RediStore
 		return nil, err
 	}
 	// defer store.Close()
-
-	// Change session storage configuration for MaxAge = 10 days.
-	store.SetMaxAge(180)
-
+	// store.Options.MaxAge = 0
+	store.SetMaxAge(10 * 60)
+	// logger.Info(time.Now())
 	return store, nil
 }
 

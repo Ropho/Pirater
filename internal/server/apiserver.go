@@ -7,7 +7,6 @@ import (
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
-	httpSwagger "github.com/swaggo/http-swagger"
 
 	"github.com/Ropho/Pirater/config"
 	"github.com/Ropho/Pirater/internal/store/mainstore"
@@ -55,14 +54,14 @@ func (serv *Server) initHandlers() {
 	serv.Router.Use(serv.setRequestId)
 	serv.Router.Use(serv.logRequest)
 
+	api := serv.Router.PathPrefix("/api/").Subrouter()
 	///////////////////////////SWAGGER
-	swaggerUrl := "doc.json"
-	serv.Router.PathPrefix("/swagger").HandlerFunc(httpSwagger.Handler(
-		httpSwagger.URL(swaggerUrl), //The url pointing to API definition
-	))
+	// swaggerUrl := "doc.json"
+	// api.PathPrefix("/swagger/").HandlerFunc(httpSwagger.Handler(
+	// 	httpSwagger.URL(swaggerUrl), //The url pointing to API definition
+	// ))
 
 	// //////////////////////////API
-	api := serv.Router.PathPrefix("/api/").Subrouter()
 
 	api.HandleFunc("/", serv.handleBase).Methods("GET")
 	api.HandleFunc("/carousel", serv.handleGetCarousel()).Methods("GET")

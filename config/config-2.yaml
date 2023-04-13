@@ -1,10 +1,9 @@
 server:
-    addr: "goapp-1"
-    port: 8080
+    addr: "goapp-2"
+    port: 8008
 
 log:
     level: "debug"
-
 
 sql_db:
     user: "root"
