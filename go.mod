@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff
-	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/google/uuid v1.3.0
@@ -12,8 +11,6 @@ require (
 	github.com/gorilla/sessions v1.2.1
 	github.com/joho/godotenv v1.5.1
 	github.com/sirupsen/logrus v1.9.0
-	github.com/swaggo/http-swagger v1.2.6
-	github.com/swaggo/http-swagger/example/go-chi v0.0.0-20220809182543-c8d62bfd8fdb
 	github.com/swaggo/swag v1.8.10
 	golang.org/x/crypto v0.5.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -30,8 +27,6 @@ require (
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
-	golang.org/x/net v0.5.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/tools v0.5.0 // indirect
 )
