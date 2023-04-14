@@ -28,10 +28,8 @@ function App() {
     .then(data => {
       data = {...data, isLogin: true}
       setUserData(data)
-      console.log("Cookie YES")
     })
     .catch(() => {
-      console.log("PIZDA")
     }
     )
   }, [])
