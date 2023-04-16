@@ -55,14 +55,8 @@ func (serv *Server) initHandlers() {
 	serv.Router.Use(serv.logRequest)
 
 	api := serv.Router.PathPrefix("/api/").Subrouter()
-	///////////////////////////SWAGGER
-	// swaggerUrl := "doc.json"
-	// api.PathPrefix("/swagger/").HandlerFunc(httpSwagger.Handler(
-	// 	httpSwagger.URL(swaggerUrl), //The url pointing to API definition
-	// ))
 
 	// //////////////////////////API
-
 	api.HandleFunc("/", serv.handleBase).Methods("GET")
 	api.HandleFunc("/carousel", serv.handleGetCarousel()).Methods("GET")
 	api.HandleFunc("/newFilms", serv.handleGetNewFilms()).Methods("GET")
@@ -80,5 +74,6 @@ func (serv *Server) initHandlers() {
 	// //////////////////////////ADMIN
 	admin := private.PathPrefix("/admin").Subrouter()
 	admin.Use(serv.authorizeAdmin)
-	admin.HandleFunc("/add/films", serv.handleAddFilms()).Methods("POST")
+	admin.HandleFunc("/film/upload", serv.handleFilmUpload())
+
 }

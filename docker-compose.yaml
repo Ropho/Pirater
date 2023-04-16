@@ -13,6 +13,8 @@ services:
     networks:
       internal:
         ipv4_address: 10.5.0.3
+    ports:
+    - 3306:3306
     volumes:
     - db-data:/var/lib/mysql
     - ./logs/mysql:/var/lib/mysql/general-log.log
@@ -33,7 +35,8 @@ services:
         ipv4_address: 10.5.0.4
     volumes:
     - ./logs/server:/var/log/nginx
-
+    # - ./shared:/data
+    - go-data:/shared
 
   cookie_db:
     image: redis
@@ -41,6 +44,7 @@ services:
     command: redis-server --save 20 1 --loglevel warning --requirepass 1337
     environment:
     - TZ=Europe/Sofia
+    - 6379:6379
     networks:
       internal:
         ipv4_address: 10.5.0.5
@@ -69,7 +73,11 @@ services:
     - cookie_db
     environment:
     - TZ=Europe/Moscow
+    user: root
     command: ["-config", "config.yaml"]
+    volumes:
+    # - ./shared:/app/shared
+    - go-data:/app/shared
     networks:
       internal:
         ipv4_address: 10.5.0.10
@@ -84,6 +92,9 @@ services:
     environment:
     - TZ=Europe/Moscow
     command: ["-config", "config-2.yaml"]
+    volumes:
+    - go-data:/app/shared
+    # - ./shared:/app/shared
     networks:
       internal:
         ipv4_address: 10.5.0.11
@@ -93,6 +104,8 @@ volumes:
         driver: local
     cookie-data:
         driver: local
+    go-data:
+      driver: local
 
 networks:
   internal:

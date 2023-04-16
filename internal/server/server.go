@@ -26,13 +26,6 @@ type Server struct {
 	Logger *log.Logger
 }
 
-// func newCookieStore(key []byte) *sessions.CookieStore {
-// 	sStore := sessions.NewCookieStore(key)
-// 	sStore.MaxAge(1000)
-
-// 	return sStore
-// }
-
 func (s *Server) error(w http.ResponseWriter, r *http.Request, code int, data string) {
 	s.respond(w, r, code, data)
 }

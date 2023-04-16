@@ -2,10 +2,16 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"os/exec"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/xfrr/goffmpeg/transcoder"
 
 	film "github.com/Ropho/Pirater/internal/model/film"
 	"github.com/Ropho/Pirater/internal/utils"
@@ -24,7 +30,7 @@ func (serv *Server) handleGetCarousel() http.HandlerFunc {
 	type CarouselFilmInfo struct {
 		Hash      uint32 `json:"hash"`
 		Name      string `json:"name"`
-		HeaderUrl string `json:"pic_url"`
+		HeaderUrl string `json:"header_url"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -87,7 +93,7 @@ func (serv *Server) handleGetNewFilms() http.HandlerFunc {
 	type NewFilmInfo struct {
 		Hash      uint32 `json:"hash"`
 		Name      string `json:"name"`
-		AfishaUrl string `json:"pic_url"`
+		AfishaUrl string `json:"afisha_url"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -193,59 +199,110 @@ func (serv *Server) handleGetCurrentFilm() http.HandlerFunc {
 	}
 }
 
-// Session Create godoc
-// @Summary ADD FILMS
+// Upload film godoc
+// @Summary FILM UPLOAD
 // @Tags ADMIN
-// @Accept       json
-// @Produce      json
-// @Param films body []server.handleAddFilms.AddFilmInfo true "films info"
+// @Accept       mpfd
+// @Param films formData server.handleFilmUpload.AddFilmInfo true "film info"
+// @Param video formData file true "video"
+// @Param header formData file true "header"
+// @Param afisha formData file true "afisha"
 // @Success      200  {string} string "Films added"
 // @Failure      405  {string}  string
 // @Failure      422  {string}  string
-// @Router /private/admin/add/films [post]
-func (serv *Server) handleAddFilms() http.HandlerFunc {
+// @Router /private/admin/film/upload [post]
+func (serv *Server) handleFilmUpload() http.HandlerFunc {
 
+	//used for input params
 	type AddFilmInfo struct {
 		Name        string   `json:"name"`
 		Description string   `json:"description"`
 		Categories  []string `json:"categories"`
-		VideoUrl    string   `json:"video_url"`
-		HeaderUrl   string   `json:"header_url"`
-		AfishaUrl   string   `json:"afisha_url"`
-		//CadreUrl []string
+		// VideoUrl    string   `json:"video_url"`
+		// HeaderUrl   string   `json:"header_url"`
+		// AfishaUrl   string   `json:"afisha_url"`
+		// CadreUrl []string
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		req := []AddFilmInfo{}
-		films := []film.Film{}
 
-		err := json.NewDecoder(r.Body).Decode(&req)
+		var err error
+
+		err = r.ParseMultipartForm(20 * 1024 * 1024)
 		if err != nil {
-			serv.Logger.Errorf("DECODE BODY ERROR: [%w]", err)
-			serv.error(w, r, http.StatusBadRequest, "BAD REQUEST")
+			serv.Logger.Errorf("max size overflow: [%w]", err)
+			serv.error(w, r, http.StatusBadRequest, "max size overflow")
+		}
+		////////////////////////////////////////////////
+		var filmInfo film.Film
+		filmInfo.Name = r.FormValue("name")
+		filmInfo.Description = r.FormValue("description")
+		// filmInfo.Categories = r.Form["categories"]
+		categories := r.FormValue("categories")
+		filmInfo.Categories = strings.Split(categories, ",")
+
+		filmInfo.Hash, err = utils.Hash([]byte(filmInfo.Name))
+		if err != nil {
+			serv.Logger.Errorf("hash algo error: [%w]", err)
+			serv.error(w, r, http.StatusInternalServerError, "")
 			return
 		}
 
-		for i := 0; i < len(req); i++ {
+		filmUrl := fmt.Sprintf("shared/%v", filmInfo.Hash)
+		filmDir := fmt.Sprintf("./shared/%v", filmInfo.Hash)
 
-			hash := utils.Hash([]byte(req[i].Name))
-			if err != nil {
-				serv.Logger.Errorf("hash algo error: [%w]", err)
-				serv.error(w, r, http.StatusInternalServerError, "")
-				return
-			}
-
-			films = append(films, film.Film{
-				Name:        req[i].Name,
-				Hash:        hash,
-				Description: req[i].Description,
-				Categories:  req[i].Categories,
-				VideoUrl:    req[i].VideoUrl,
-				HeaderUrl:   req[i].HeaderUrl,
-				AfishaUrl:   req[i].AfishaUrl,
-			})
+		if err = os.Mkdir(filmDir, 0766); err != nil && !os.IsExist(err) {
+			serv.Logger.Errorf("unable to create dir: [%w]", err)
+			serv.error(w, r, http.StatusInternalServerError, "")
+			return
 		}
 
+		//////////////////////////////////////////////////////////////
+		if err = serv.getFile(w, r, filmDir, "video"); err != nil {
+			return
+		}
+		////////////////////////////////////////////
+		// Create new instance of transcoder
+		trans := new(transcoder.Transcoder)
+
+		// Initialize transcoder passing the input file path and output file path
+		err = trans.Initialize(filmDir+"/video", filmDir+"/video.m3u8")
+		// err = trans.Initialize("video", "video.m3u8")
+		if err, ok := err.(*exec.ExitError); !ok && err != nil {
+			serv.Logger.Errorf("unable to init trans: [%w]", err)
+			serv.error(w, r, http.StatusInternalServerError, "")
+			return
+		}
+
+		// SET FRAME RATE TO MEDIAFILE
+		// trans.MediaFile().SetFrameRate(70)
+		// SET ULTRAFAST PRESET TO MEDIAFILE
+		// trans.MediaFile().SetPreset("ultrafast")
+		// Start transcoder process to check progress
+		done := trans.Run(true)
+
+		// This channel is used to wait for the transcoding process to end
+		err = <-done
+		if err, ok := err.(*exec.ExitError); !ok && err != nil {
+			serv.Logger.Errorf("unable to convert video: [%w]", err)
+			serv.error(w, r, http.StatusInternalServerError, "")
+			return
+		}
+
+		filmInfo.VideoUrl = fmt.Sprintf("http://%s/%s/%s", "192.168.31.100:80", filmUrl, "video.m3u8")
+		/////////////////////////////////////////
+		if err = serv.getFile(w, r, filmDir, "header"); err != nil {
+			return
+		}
+		filmInfo.HeaderUrl = fmt.Sprintf("http://%s/%s/%s", "192.168.31.100:80", filmUrl, "header")
+
+		if err = serv.getFile(w, r, filmDir, "afisha"); err != nil {
+			return
+		}
+		filmInfo.AfishaUrl = fmt.Sprintf("http://%s/%s/%s", "192.168.31.100:80", filmUrl, "afisha")
+
+		///////////////////////////////////////////
+		films := []film.Film{filmInfo}
 		err = serv.Store.Film().Create(films)
 		if err != nil {
 			serv.Logger.Errorf("create film error: [%w]", err)
@@ -253,7 +310,38 @@ func (serv *Server) handleAddFilms() http.HandlerFunc {
 			return
 		}
 
-		serv.respond(w, r, http.StatusAccepted, "films were successfully added")
+		serv.respond(w, r, http.StatusAccepted, "film was successfully added")
+	}
+}
+
+func (serv *Server) getFile(w http.ResponseWriter, r *http.Request, dirName string, fileName string) error {
+
+	file, _, err := r.FormFile(fileName)
+	if err != nil {
+		serv.Logger.Errorf("form file error: [%w]", err)
+		serv.error(w, r, http.StatusInternalServerError, "")
+	}
+	defer file.Close()
+
+	resfile, err := os.Create(dirName + "/" + fileName)
+	if err != nil {
+		serv.Logger.Errorf("create file error: [%w]", err)
+		serv.error(w, r, http.StatusInternalServerError, "")
+		return err
+	}
+	defer resfile.Close()
+
+	err = os.Chmod(dirName+"/"+fileName, 0666)
+	if err != nil {
+		serv.Logger.Errorf("chmod file error: [%w]", err)
+		serv.error(w, r, http.StatusInternalServerError, "")
 	}
 
+	if _, err := io.Copy(resfile, file); err != nil {
+		serv.Logger.Errorf("copy file error: [%w]", err)
+		serv.error(w, r, http.StatusInternalServerError, "")
+		return err
+	}
+
+	return nil
 }
