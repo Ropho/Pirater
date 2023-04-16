@@ -12,7 +12,7 @@
     position: relative;
     width: 98.5%;
     height: 70vh;
-    min-height: 720px;
+    min-height: 1080px;
     overflow: hidden;
     min-width: 1080px;
     margin-left: 1.5%;
@@ -22,7 +22,7 @@
     position: absolute;
     height: 100%;
     width: 100%;
-    object-fit:cover;
+    object-fit:fill;
     object-position: top center;
     border-bottom-left-radius: 5rem;
     border-bottom-right-radius: 5rem;
@@ -65,6 +65,9 @@
     color:whitesmoke;
     margin-left: 3.5rem;
     overflow-wrap: break-word;
+    display: flex;
+    flex-direction:row;
+    gap:6pt;
 }
 
 

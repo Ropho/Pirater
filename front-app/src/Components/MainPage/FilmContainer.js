@@ -25,7 +25,7 @@ export default function FilmsGrid(props) {
     <ImageContainer 
     id      = {curFilm.hash}
     key     = {curFilm.hash}
-    imgUrl  = {curFilm.pic_url} 
+    imgUrl  = {curFilm.afisha_url} 
     name    = {curFilm.name} 
     hash    = {curFilm.hash}
     />
@@ -33,7 +33,7 @@ export default function FilmsGrid(props) {
 
   return (
     <div className="films-container">
-      <h2 className="header">New!</h2>
+      <h2 className="header">Новое!</h2>
       <div className="films-grid">
         {images}
       </div>

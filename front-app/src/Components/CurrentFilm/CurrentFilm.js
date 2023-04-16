@@ -7,13 +7,18 @@ import  './CurrentFilm.css'
 
 function AfishaContainer(props)
 {
+  const category = () => {
+    const categories = props.data.categories.map(element => (<div>{element}</div>))
+    return categories;
+  }
+
   return (
     <div className = "afisha--container">
-      <img className = "afisha--img--content" src={props.data.pic_url} />
+      <img className = "afisha--img--content" src={props.data.header_url} />
       <div className = "afisha--text--content">
       <div className='film--name--block'> 
         <div className='film--name'>{props.data.name}</div>
-        <div className='film--category'> {() => props.data.categories.map((element) => element)} </div>
+        <div className='film--category'> {category()} </div>
       </div>
       <div className='film--description'> {props.data.description}</div>
       </div>
@@ -26,7 +31,7 @@ export default function CurrentFilm()
 {
     window.scrollTo(0, 0)
     
-    const [filmData, setFilmData] = useState({})
+    const [filmData, setFilmData] = useState({categories:[],})
 
     let params = useParams()
 
@@ -39,6 +44,10 @@ export default function CurrentFilm()
                 throw new Error('response is not OK');                 
             })
             .then(data => {
+                if (data === undefined)
+                {
+                  throw 'undefined data';
+                }
                 setFilmData(data);
             })
             .catch(err => {
@@ -51,7 +60,7 @@ export default function CurrentFilm()
         <div className= "current--container">
           <AfishaContainer data = {filmData} />
           <div className='videoPlayer--container'>
-            <VideoPlayer />
+            <VideoPlayer video_url = {filmData.video_url}/>
           </div>
         </div>
     )

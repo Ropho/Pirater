@@ -11,9 +11,10 @@ import { WHOAMI_URL } from './Components/config/Constants';
 function App() {
 
   const [userData, setUserData] = useState({
-
-    Email: "",
-    Right: "",
+    email: "",
+    right: "",
+    modified:"",
+    registered: "",
     isLogin: false,
   })
 
@@ -29,11 +30,8 @@ function App() {
     .then(data => {
       data = {...data, isLogin: true}
       setUserData(data)
-
-      console.log(userData)
     })
     .catch(() => {
-      console.log(userData)
     }
     )
   }, [])

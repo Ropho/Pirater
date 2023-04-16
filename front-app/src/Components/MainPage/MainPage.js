@@ -28,9 +28,7 @@ export default function MainPage()
             .catch(err => {
                 console.log('carousel: ' + err.message)
             })
-    }, []);
 
-    useEffect(() => {
         fetch(BACKEND_URL + `/api/newFilms?count=${numberOfElementInNews}`)
             .then(response => {
                 if (response.ok) {
@@ -45,6 +43,7 @@ export default function MainPage()
                 console.log('news: ' + error.message)
             })
     }, []);
+
 
     return(
         <main>
