@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	film "github.com/Ropho/Pirater/internal/model/film"
-	"github.com/sirupsen/logrus"
 )
 
 type SqlFilmRepository struct {
@@ -97,8 +96,6 @@ func (r *SqlFilmRepository) FindByHash(hash uint32) (*film.Film, error) {
 	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("rows end error: [%w]", err)
 	}
-
-	logrus.Info(f.Categories)
 
 	return f, nil
 }
