@@ -1,14 +1,17 @@
 import React from 'react'
 import {Splide, SplideSlide } from '@splidejs/react-splide';
+import {Link} from 'react-router-dom'
 import '@splidejs/react-splide/css';
 import './Carousel.css'
 
 export default function Carousel(props)
-{   
+{
     const img = props.data.map((curImg) => {
         return(
             <SplideSlide key={curImg.hash}>
-                <img className = 'carousel--img' src = {curImg.pic_url} alt = {curImg.name}></img>
+                <Link to = {`/film/${curImg.hash}`} >
+                    <img className = 'carousel--img' src = {curImg.header_url} alt = {curImg.name}></img>
+                </Link>
             </SplideSlide>
         )
     })

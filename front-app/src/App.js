@@ -13,6 +13,8 @@ function App() {
   const [userData, setUserData] = useState({
     email: "",
     right: "",
+    modified:"",
+    registered: "",
     isLogin: false,
   })
 

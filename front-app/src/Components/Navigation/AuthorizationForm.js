@@ -77,7 +77,6 @@ export default function LoginForm(props)
             })
             .then(response => {
                 if (response.ok){
-                    console.log("HERE")
                     succeedReq();
                 }
                 else

@@ -6,7 +6,7 @@ import AuthorizationForm from "./AuthorizationForm"
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Avatar from '@mui/material/Avatar';
-
+import { OUT_URL } from '../config/Constants'
 
 
 let activeStyle = {
@@ -89,15 +89,28 @@ function UserMenu(props)
   };
 
   const handleLogout = () => {
-    //fetch
 
-    props.setUserData(() => {
-      return{
-        email:  "",
-        rights: "",
-        isLogin: false,
+    fetch(OUT_URL)
+    .then(response => {
+      if (response.ok)
+      {
+        props.setUserData(() => {
+          return{
+            email:  "",
+            rights: "",    
+            modified:"",
+            registered: "",
+            isLogin: false,
+          }
+        })
       }
+      throw 'Log out error'
     })
+    .catch((err) => {
+      alert(err)
+    })
+
+
   };
 
   return (
@@ -118,7 +131,7 @@ function UserMenu(props)
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={handleClose}>email@mail.ru</MenuItem>
+        <MenuItem onClick={handleClose}>{props.userData.email}</MenuItem>
         <MenuItem onClick={handleLogout}>Logout</MenuItem>
       </Menu>
     </div>
