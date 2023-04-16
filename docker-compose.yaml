@@ -1,0 +1,102 @@
+version: '3'
+
+services:
+
+  db:
+    image: mysql
+    restart: always
+    environment:
+    - TZ=Europe/Moscow
+    - MYSQL_ROOT_PASSWORD=2280
+    - MYSQL_DATABASE=piraterDB
+    command: mysqld --general-log=1 --general-log-file=/var/lib/mysql/general-log.log/log.log --default-time-zone=+3:00
+    networks:
+      internal:
+        ipv4_address: 10.5.0.3
+    volumes:
+    - db-data:/var/lib/mysql
+    - ./logs/mysql:/var/lib/mysql/general-log.log
+
+  
+  web_server:
+    image: nginxapp
+    restart: always
+    ports:
+    - 80:80
+    depends_on:
+      - goapp-1
+    # network_mode: host
+    environment:
+    - TZ=Europe/Moscow
+    networks:
+      internal:
+        ipv4_address: 10.5.0.4
+    volumes:
+    - ./logs/server:/var/log/nginx
+
+
+  cookie_db:
+    image: redis
+    restart: always
+    command: redis-server --save 20 1 --loglevel warning --requirepass 1337
+    environment:
+    - TZ=Europe/Sofia
+    networks:
+      internal:
+        ipv4_address: 10.5.0.5
+    volumes:
+    - cookie-data:/data
+    - ./logs/redis:/var/log
+
+    
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    restart: always
+    volumes:
+        - ./docs:/usr/share/nginx/html/doc
+    environment:
+      API_URL: doc/swagger.yaml
+    networks:
+      internal:
+        ipv4_address: 10.5.0.6
+
+
+  goapp-1:
+    image: goapp
+    restart: always
+    depends_on:
+    - db
+    - cookie_db
+    environment:
+    - TZ=Europe/Moscow
+    command: ["-config", "config.yaml"]
+    networks:
+      internal:
+        ipv4_address: 10.5.0.10
+
+
+  goapp-2:
+    image: goapp
+    restart: always
+    depends_on:
+    - db
+    - cookie_db
+    environment:
+    - TZ=Europe/Moscow
+    command: ["-config", "config-2.yaml"]
+    networks:
+      internal:
+        ipv4_address: 10.5.0.11
+
+volumes:
+    db-data:
+        driver: local
+    cookie-data:
+        driver: local
+
+networks:
+  internal:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.5.0.0/24

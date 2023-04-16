@@ -1,0 +1,20 @@
+server:
+    addr: "goapp-1"
+    port: 8080
+
+log:
+    level: "debug"
+
+
+sql_db:
+    user: "root"
+    pass: "2280"
+    name: "piraterDB"
+    addr: "db"
+    port: 3306
+
+cookie_db:
+    pass: "1337"
+    addr: "cookie_db"
+    port: 6379
+    max_connections: 10
