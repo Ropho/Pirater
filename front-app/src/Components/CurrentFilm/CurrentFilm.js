@@ -51,7 +51,7 @@ export default function CurrentFilm()
                 setFilmData(data);
             })
             .catch(err => {
-                console.log('CurrentFilm: ' + err.message)
+                console.log('CurrentFilm error: ' + err.message)
             })
     }, []);
     
