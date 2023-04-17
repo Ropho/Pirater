@@ -104,7 +104,9 @@ function UserMenu(props)
           }
         })
       }
-      throw 'Log out error'
+      else{
+        throw 'Log out error'
+      }
     })
     .catch((err) => {
       alert(err)
