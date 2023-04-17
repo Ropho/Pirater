@@ -31,10 +31,10 @@ export default function CurrentFilm()
 {
     window.scrollTo(0, 0)
     
-    const [filmData, setFilmData] = useState({categories:[],})
+    const [filmData, setFilmData] = useState({categories:[], video_url:""})
 
     let params = useParams()
-
+    
     useEffect(() => {
         fetch(PATH_CUR_FILM + `/${params.hash}`)
             .then(response => {
@@ -51,10 +51,9 @@ export default function CurrentFilm()
                 setFilmData(data);
             })
             .catch(err => {
-                console.log('CurrentFilm error: ' + err.message)
+                console.log('CurrentFilm:' + err.message)
             })
     }, []);
-    
 
     return(
         <div className= "current--container">
