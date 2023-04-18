@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Carousel     from './Carousel'
 import FilmContainer from './FilmContainer'
-import dataNewsMock     from './data_news'
-import dataCarouselMock from './data_carousel'
 import {BACKEND_URL} from '../config/Constants'
 import './MainPage.css'
 
@@ -11,8 +9,8 @@ const numberOfElementInNews     = 8;
 
 export default function MainPage()
 {
-    const [dataCarousel, setDataCarousel] = useState([]);
-    const [dataNews, setDataNews]   = useState([]);
+    const [dataCarousel, setDataCarousel] = useState([{header_url:'', name:'', hash:''}]);
+    const [dataNews, setDataNews]   = useState([{name:'', hash:'', afisha_url:''}]);
 
     useEffect(() => {
         fetch(BACKEND_URL + `/api/carousel?count=${numberOfElementInCarousel}`)

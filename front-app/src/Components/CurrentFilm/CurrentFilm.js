@@ -14,7 +14,7 @@ function AfishaContainer(props)
 
   return (
     <div className = "afisha--container">
-      <img className = "afisha--img--content" src={props.data.header_url} />
+      <img className = "afisha--img--content" alt ={props.data.name} src={props.data.header_url} />
       <div className = "afisha--text--content">
       <div className='film--name--block'> 
         <div className='film--name'>{props.data.name}</div>
@@ -46,7 +46,7 @@ export default function CurrentFilm()
             .then(data => {
                 if (data === undefined)
                 {
-                  throw 'undefined data';
+                  throw new Error('undefined data');
                 }
                 setFilmData(data);
             })

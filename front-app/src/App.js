@@ -25,13 +25,14 @@ function App() {
       {
         return response.json()
       }
-      throw 'cancel';
+      throw new Error('no cookie');
     })
     .then(data => {
       data = {...data, isLogin: true}
       setUserData(data)
     })
-    .catch(() => {
+    .catch((err) => {
+      
     }
     )
   }, [])
@@ -42,7 +43,7 @@ function App() {
         <NavigationBar userData = {userData} setUserData = {setUserData}/>
         <Routes>
             <Route path = "/" exact element={<MainPage/>} />
-            <Route path = "/support" exact element={<h1>Help support</h1>} />
+            <Route path = "/support" element={<h1>Help support</h1>} />
             <Route path = "/film/:hash" 
             exact element={<CurrentFilm/>} />
         </Routes>
