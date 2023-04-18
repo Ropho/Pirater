@@ -167,3 +167,13 @@ func (r *SqlFilmRepository) GetNewFilmsInfo(num int) ([]film.Film, error) {
 
 	return films, err
 }
+
+func (r *SqlFilmRepository) DeleteByHash(hash uint32) error {
+
+	_, err := r.store.Db.Exec("Delete FROM films WHERE hash = ?", hash)
+	if err != nil {
+		return fmt.Errorf("delete film by hash error: [%w]", err)
+	}
+
+	return nil
+}

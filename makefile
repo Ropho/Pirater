@@ -2,8 +2,8 @@
 
 .PHONY: build_front
 build_front:
-	cd front-app 	&&
-	npm run build	&&
+	cd front-app 	&&		\
+	npm run build	&&		\
 	cd ..  
 
 
@@ -14,13 +14,9 @@ build:
 	docker build -t goapp -f ./docker/app/Dockerfile .
 	docker build -t nginxapp -f ./docker/nginx/Dockerfile .
 
-# make run ARGS="-config config2.yaml"
-# make run ARGS="-config config.yaml"
 .PHONY: run
 run:
 	docker compose up
-# sleep 1						;
-# ./bin/prog $(ARGS)
 
 .PHONY: migrate_up
 migrate_up:
