@@ -31,9 +31,10 @@ export default function CurrentFilm()
 {
     window.scrollTo(0, 0)
     
-    const [filmData, setFilmData] = useState({categories:[],})
+    const [filmData, setFilmData] = useState({categories:[], video_url:"",})
 
-    let params = useParams()
+    const params = useParams()
+    console.log("Ya yebal rot")
 
     useEffect(() => {
         fetch(PATH_CUR_FILM + `/${params.hash}`)

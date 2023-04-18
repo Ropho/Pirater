@@ -21,7 +21,7 @@ import (
 // @Summary GET CAROUSEL
 // @Tags W/O AUTH
 // @Produce json
-// @Param  count query string true "number of films required"
+// @Param  count query int true "number of films required"
 // @Success      200  {array} server.handleGetCarousel.CarouselFilmInfo
 // @Failure      500  {string}  string
 // @Router /carousel [get]
@@ -84,7 +84,7 @@ func (serv *Server) handleGetCarousel() http.HandlerFunc {
 // @Summary GET New Films
 // @Tags W/O AUTH
 // @Produce json
-// @Param  count query string true "number of films required"
+// @Param  count query int true "number of films required"
 // @Success      200  {array} server.handleGetNewFilms.NewFilmInfo
 // @Failure      500  {string}  string
 // @Router /newFilms [get]
@@ -344,4 +344,33 @@ func (serv *Server) getFile(w http.ResponseWriter, r *http.Request, dirName stri
 	}
 
 	return nil
+}
+
+// Delete film godoc
+// @Summary Delete Film
+// @Tags ADMIN
+// @Param  hash query uint32 true "number of films required"
+// @Success      200  {string} string
+// @Failure      500  {string}  string
+// @Router /private/admin/film/delete [delete]
+func (serv *Server) handleFilmDelete() http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		hash, err := strconv.ParseUint(mux.Vars(r)["hash"], 10, 32)
+		if err != nil {
+			serv.Logger.Error("request for film wrong hash: [%w]", err)
+			serv.error(w, r, http.StatusBadRequest, "bad hash")
+			return
+		}
+
+		err = serv.Store.Film().DeleteByHash(uint32(hash))
+		if err != nil {
+			serv.Logger.Errorf("get random films error: [%w]", err)
+			serv.error(w, r, http.StatusInternalServerError, "")
+			return
+		}
+
+		serv.respond(w, r, http.StatusOK, "successfully deleted")
+	}
 }

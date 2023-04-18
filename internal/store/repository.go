@@ -17,6 +17,7 @@ type UserRepository interface {
 
 type FilmRepository interface {
 	Create(films []film.Film) error
+	DeleteByHash(hash uint32) error
 	FindByHash(hash uint32) (*film.Film, error)
 	CountAllRows() (int, error)
 	GetCarouselFilmsInfo(num int) ([]film.Film, error)
