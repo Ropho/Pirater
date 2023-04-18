@@ -125,3 +125,8 @@
   text-decoration: underline;
 }
 }
+
+.MuiMenu-root ul{
+  background-color: white;
+  color: #0F4D81;
+}

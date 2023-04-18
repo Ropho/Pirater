@@ -14,7 +14,7 @@ function AfishaContainer(props)
 
   return (
     <div className = "afisha--container">
-      <img className = "afisha--img--content" src={props.data.header_url} />
+      <img className = "afisha--img--content" alt ={props.data.name} src={props.data.header_url} />
       <div className = "afisha--text--content">
       <div className='film--name--block'> 
         <div className='film--name'>{props.data.name}</div>
@@ -31,10 +31,10 @@ export default function CurrentFilm()
 {
     window.scrollTo(0, 0)
     
-    const [filmData, setFilmData] = useState({categories:[],})
+    const [filmData, setFilmData] = useState({categories:[], video_url:""})
 
     let params = useParams()
-
+    
     useEffect(() => {
         fetch(PATH_CUR_FILM + `/${params.hash}`)
             .then(response => {
@@ -46,15 +46,14 @@ export default function CurrentFilm()
             .then(data => {
                 if (data === undefined)
                 {
-                  throw 'undefined data';
+                  throw new Error('undefined data');
                 }
                 setFilmData(data);
             })
             .catch(err => {
-                console.log('CurrentFilm: ' + err.message)
+                console.log('CurrentFilm:' + err.message)
             })
     }, []);
-    
 
     return(
         <div className= "current--container">

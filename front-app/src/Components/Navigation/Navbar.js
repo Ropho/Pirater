@@ -79,11 +79,14 @@ function NavBarElements(props)
   )
 }
 
+
+
 function UserMenu(props)
 {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-
+  
+  
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -108,10 +111,12 @@ function UserMenu(props)
           }
         })
       }
-      throw 'Log out error'
+      else{
+        throw new Error('Log out error')
+      }
     })
     .catch((err) => {
-      alert(err)
+      alert(err.message)
     })
 
 

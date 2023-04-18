@@ -45,6 +45,27 @@ export default function LoginForm(props)
         modalClose()
     }
 
+    function sessionLogin()
+    {
+        fetch(SESSIONS_URL, {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify(userFormData),
+        })
+        .then(response => {
+            if (response.ok){
+                succeedReq();
+            }
+            else
+            {
+                return response.text();
+            }
+        })
+        .then(text => {
+            setErrorMessage(text)
+        })
+    }
+
     function handleSubmit(event)
     {
         if (isReg)
@@ -57,7 +78,7 @@ export default function LoginForm(props)
             .then(response => {
                 if (response.ok) 
                 {
-                    succeedReq();
+                    sessionLogin();
                 }
                 else
                 {
@@ -65,28 +86,12 @@ export default function LoginForm(props)
                 }
             })
             .then(text => {
-                setErrorMessage(text)
+                setErrorMessage('Access denied: ',text)
             })
         }
         else
         {
-            fetch(SESSIONS_URL, {
-                method: "POST",
-                mode: "cors",
-                body: JSON.stringify(userFormData),
-            })
-            .then(response => {
-                if (response.ok){
-                    succeedReq();
-                }
-                else
-                {
-                    return response.text();
-                }
-            })
-            .then(text => {
-                setErrorMessage(text)
-            })
+            sessionLogin();
         }
 
 
