@@ -216,3 +216,34 @@ func (serv *Server) handleWhoami() http.HandlerFunc {
 		serv.Logger.Infof("handle whoami: [%v]", u)
 	}
 }
+
+// Delete user godoc
+// @Summary Delete user
+// @Tags ADMIN
+// @Param  email body string true "email of a user to be deleted"
+// @Success      200  {string} string
+// @Failure      500  {string}  string
+// @Router /private/admin/user/delete [delete]
+func (serv *Server) handleUserDelete() http.HandlerFunc {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		var err error
+
+		var email string
+		err = json.NewDecoder(r.Body).Decode(&email)
+		if err != nil {
+			serv.Logger.Errorf("decode body error: [%w], %v", err, r.Body)
+			serv.error(w, r, http.StatusBadRequest, "")
+			return
+		}
+
+		err = serv.Store.User().DeleteByEmail(email)
+		if err != nil {
+			serv.Logger.Errorf("delete user error: [%w]", err)
+			serv.error(w, r, http.StatusInternalServerError, "")
+			return
+		}
+
+		serv.respond(w, r, http.StatusOK, "successfully deleted")
+	}
+}

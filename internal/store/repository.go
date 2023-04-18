@@ -13,6 +13,7 @@ type UserRepository interface {
 	Create(*user.User) error
 	FindByEmail(string) (*user.User, error)
 	FindById(id int) (*user.User, error)
+	DeleteByEmail(string) error
 }
 
 type FilmRepository interface {

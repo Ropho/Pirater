@@ -74,6 +74,8 @@ func (serv *Server) initHandlers() {
 	// //////////////////////////ADMIN
 	admin := private.PathPrefix("/admin").Subrouter()
 	admin.Use(serv.authorizeAdmin)
-	admin.HandleFunc("/film/upload", serv.handleFilmUpload())
-	admin.HandleFunc("/film/delete", serv.handleFilmDelete())
+	admin.HandleFunc("/film/upload", serv.handleFilmUpload()).Methods("POST")
+	admin.HandleFunc("/film/delete", serv.handleFilmDelete()).Methods("DELETE")
+	admin.HandleFunc("/user/delete", serv.handleUserDelete()).Methods("DELETE")
+
 }

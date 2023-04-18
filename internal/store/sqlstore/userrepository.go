@@ -116,3 +116,13 @@ func (r *SqlUserRepository) FindById(id int) (*user.User, error) {
 func ParseTime(timeArg string) (time.Time, error) {
 	return time.Parse("2006-01-02 15:04:05", timeArg)
 }
+
+func (r *SqlUserRepository) DeleteByEmail(email string) error {
+
+	_, err := r.store.Db.Exec("DELETE FROM users WHERE email = ?", email)
+	if err != nil {
+		return fmt.Errorf("unable to delete user: [%w]", err)
+	}
+
+	return nil
+}

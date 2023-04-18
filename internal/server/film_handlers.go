@@ -218,10 +218,6 @@ func (serv *Server) handleFilmUpload() http.HandlerFunc {
 		Name        string   `json:"name"`
 		Description string   `json:"description"`
 		Categories  []string `json:"categories"`
-		// VideoUrl    string   `json:"video_url"`
-		// HeaderUrl   string   `json:"header_url"`
-		// AfishaUrl   string   `json:"afisha_url"`
-		// CadreUrl []string
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -237,7 +233,6 @@ func (serv *Server) handleFilmUpload() http.HandlerFunc {
 		var filmInfo film.Film
 		filmInfo.Name = r.FormValue("name")
 		filmInfo.Description = r.FormValue("description")
-		// filmInfo.Categories = r.Form["categories"]
 		categories := r.FormValue("categories")
 		filmInfo.Categories = strings.Split(categories, ",")
 
@@ -267,7 +262,6 @@ func (serv *Server) handleFilmUpload() http.HandlerFunc {
 
 		// Initialize transcoder passing the input file path and output file path
 		err = trans.Initialize(filmDir+"/video", filmDir+"/video.m3u8")
-		// err = trans.Initialize("video", "video.m3u8")
 		if err, ok := err.(*exec.ExitError); !ok && err != nil {
 			serv.Logger.Errorf("unable to init trans: [%w]", err)
 			serv.error(w, r, http.StatusInternalServerError, "")
@@ -289,17 +283,18 @@ func (serv *Server) handleFilmUpload() http.HandlerFunc {
 			return
 		}
 
-		filmInfo.VideoUrl = fmt.Sprintf("http://%s/%s/%s", "192.168.31.100:80", filmUrl, "video.m3u8")
+		webServerInfo := fmt.Sprintf("%s:%d", serv.Config.Server.ProxyAddr, serv.Config.Server.ProxyPort)
+		filmInfo.VideoUrl = fmt.Sprintf("http://%s/%s/%s", webServerInfo, filmUrl, "video.m3u8")
 		/////////////////////////////////////////
 		if err = serv.getFile(w, r, filmDir, "header"); err != nil {
 			return
 		}
-		filmInfo.HeaderUrl = fmt.Sprintf("http://%s/%s/%s", "192.168.31.100:80", filmUrl, "header")
+		filmInfo.HeaderUrl = fmt.Sprintf("http://%s/%s/%s", webServerInfo, filmUrl, "header")
 
 		if err = serv.getFile(w, r, filmDir, "afisha"); err != nil {
 			return
 		}
-		filmInfo.AfishaUrl = fmt.Sprintf("http://%s/%s/%s", "192.168.31.100:80", filmUrl, "afisha")
+		filmInfo.AfishaUrl = fmt.Sprintf("http://%s/%s/%s", webServerInfo, filmUrl, "afisha")
 
 		///////////////////////////////////////////
 		films := []film.Film{filmInfo}

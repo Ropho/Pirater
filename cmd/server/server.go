@@ -16,6 +16,7 @@ import (
 // @description U can access functions from here
 // @schemes http https
 
+// Proxy Server IP:PORT
 // @host 192.168.31.100:80
 
 // @BasePath /api/

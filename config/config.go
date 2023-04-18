@@ -14,8 +14,10 @@ const (
 )
 
 type ServerConfig struct {
-	Addr string `yaml:"addr"`
-	Port int    `yaml:"port"`
+	Addr      string `yaml:"addr"`
+	Port      int    `yaml:"port"`
+	ProxyAddr string `yaml:"proxy_addr"`
+	ProxyPort int    `yaml:"proxy_port"`
 }
 
 type SqlDBConfig struct {
