@@ -179,14 +179,16 @@ func (serv *Server) handleGetCurrentFilm() http.HandlerFunc {
 			serv.error(w, r, http.StatusInternalServerError, "")
 		}
 
+		webServerInfo := fmt.Sprintf("%s:%d", serv.Config.Server.ProxyAddr, serv.Config.Server.ProxyPort)
+
 		filmInfo := &GetFilmInfo{
 			Name:        film.Name,
 			Hash:        film.Hash,
 			Description: film.Description,
 			Categories:  film.Categories,
-			VideoUrl:    film.VideoUrl,
-			HeaderUrl:   film.HeaderUrl,
-			AfishaUrl:   film.AfishaUrl,
+			VideoUrl:    fmt.Sprintf("http://%s/%s", webServerInfo, film.VideoUrl),
+			HeaderUrl:   fmt.Sprintf("http://%s/%s", webServerInfo, film.HeaderUrl),
+			AfishaUrl:   fmt.Sprintf("http://%s/%s", webServerInfo, film.AfishaUrl),
 		}
 
 		ans, err := json.Marshal(filmInfo)
@@ -283,18 +285,17 @@ func (serv *Server) handleFilmUpload() http.HandlerFunc {
 			return
 		}
 
-		webServerInfo := fmt.Sprintf("%s:%d", serv.Config.Server.ProxyAddr, serv.Config.Server.ProxyPort)
-		filmInfo.VideoUrl = fmt.Sprintf("http://%s/%s/%s", webServerInfo, filmUrl, "video.m3u8")
+		filmInfo.VideoUrl = fmt.Sprintf("%s/%s", filmUrl, "video.m3u8")
 		/////////////////////////////////////////
 		if err = serv.getFile(w, r, filmDir, "header"); err != nil {
 			return
 		}
-		filmInfo.HeaderUrl = fmt.Sprintf("http://%s/%s/%s", webServerInfo, filmUrl, "header")
+		filmInfo.HeaderUrl = fmt.Sprintf("%s/%s", filmUrl, "header")
 
 		if err = serv.getFile(w, r, filmDir, "afisha"); err != nil {
 			return
 		}
-		filmInfo.AfishaUrl = fmt.Sprintf("http://%s/%s/%s", webServerInfo, filmUrl, "afisha")
+		filmInfo.AfishaUrl = fmt.Sprintf("%s/%s", filmUrl, "afisha")
 
 		///////////////////////////////////////////
 		films := []film.Film{filmInfo}
