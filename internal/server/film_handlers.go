@@ -179,14 +179,16 @@ func (serv *Server) handleGetCurrentFilm() http.HandlerFunc {
 			serv.error(w, r, http.StatusInternalServerError, "")
 		}
 
+		webServerInfo := fmt.Sprintf("%s:%d", serv.Config.Server.ProxyAddr, serv.Config.Server.ProxyPort)
+
 		filmInfo := &GetFilmInfo{
 			Name:        film.Name,
 			Hash:        film.Hash,
 			Description: film.Description,
 			Categories:  film.Categories,
-			VideoUrl:    film.VideoUrl,
-			HeaderUrl:   film.HeaderUrl,
-			AfishaUrl:   film.AfishaUrl,
+			VideoUrl:    fmt.Sprintf("http://%s/%s", webServerInfo, film.VideoUrl),
+			HeaderUrl:   fmt.Sprintf("http://%s/%s", webServerInfo, film.HeaderUrl),
+			AfishaUrl:   fmt.Sprintf("http://%s/%s", webServerInfo, film.AfishaUrl),
 		}
 
 		ans, err := json.Marshal(filmInfo)
@@ -283,18 +285,17 @@ func (serv *Server) handleFilmUpload() http.HandlerFunc {
 			return
 		}
 
-		webServerInfo := fmt.Sprintf("%s:%d", serv.Config.Server.ProxyAddr, serv.Config.Server.ProxyPort)
-		filmInfo.VideoUrl = fmt.Sprintf("http://%s/%s/%s", webServerInfo, filmUrl, "video.m3u8")
+		filmInfo.VideoUrl = fmt.Sprintf("%s/%s", filmUrl, "video.m3u8")
 		/////////////////////////////////////////
 		if err = serv.getFile(w, r, filmDir, "header"); err != nil {
 			return
 		}
-		filmInfo.HeaderUrl = fmt.Sprintf("http://%s/%s/%s", webServerInfo, filmUrl, "header")
+		filmInfo.HeaderUrl = fmt.Sprintf("%s/%s", filmUrl, "header")
 
 		if err = serv.getFile(w, r, filmDir, "afisha"); err != nil {
 			return
 		}
-		filmInfo.AfishaUrl = fmt.Sprintf("http://%s/%s/%s", webServerInfo, filmUrl, "afisha")
+		filmInfo.AfishaUrl = fmt.Sprintf("%s/%s", filmUrl, "afisha")
 
 		///////////////////////////////////////////
 		films := []film.Film{filmInfo}
@@ -344,7 +345,7 @@ func (serv *Server) getFile(w http.ResponseWriter, r *http.Request, dirName stri
 // Delete film godoc
 // @Summary Delete Film
 // @Tags ADMIN
-// @Param  hash query uint32 true "number of films required"
+// @Param  hash query uint32 true "film of hash"
 // @Success      200  {string} string
 // @Failure      500  {string}  string
 // @Router /private/admin/film/delete [delete]
@@ -352,7 +353,7 @@ func (serv *Server) handleFilmDelete() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		hash, err := strconv.ParseUint(mux.Vars(r)["hash"], 10, 32)
+		hash, err := strconv.ParseUint(r.URL.Query().Get("hash"), 10, 32)
 		if err != nil {
 			serv.Logger.Error("request for film wrong hash: [%w]", err)
 			serv.error(w, r, http.StatusBadRequest, "bad hash")

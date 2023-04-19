@@ -3,10 +3,10 @@ import {ReactComponent as Logo} from '../../logo.svg'
 import {NavLink} from "react-router-dom"
 import "./Navbar.css"
 import AuthorizationForm from "./AuthorizationForm"
-import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Avatar from '@mui/material/Avatar';
 import { OUT_URL } from '../config/Constants'
+import Menu from '@mui/material/Menu';
 
 
 let activeStyle = {
@@ -14,6 +14,14 @@ let activeStyle = {
   textDecorationColor: "#E13737",
 }; 
 
+const styles = {
+  paper: {
+    backgroundColor: '#f2f2f2', // set the background color of the paper component
+  },
+  list: {
+    color: 'red', // set the color of the list items
+  },
+};
 
 export default function NavigationBar(props)
 {
