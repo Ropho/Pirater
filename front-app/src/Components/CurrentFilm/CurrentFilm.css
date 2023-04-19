@@ -22,7 +22,7 @@
     position: absolute;
     height: 100%;
     width: 100%;
-    object-fit:fill;
+    object-fit:cover;
     object-position: top center;
     border-bottom-left-radius: 5rem;
     border-bottom-right-radius: 5rem;
