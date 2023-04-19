@@ -344,7 +344,7 @@ func (serv *Server) getFile(w http.ResponseWriter, r *http.Request, dirName stri
 // Delete film godoc
 // @Summary Delete Film
 // @Tags ADMIN
-// @Param  hash query uint32 true "number of films required"
+// @Param  hash query uint32 true "film of hash"
 // @Success      200  {string} string
 // @Failure      500  {string}  string
 // @Router /private/admin/film/delete [delete]
@@ -352,7 +352,7 @@ func (serv *Server) handleFilmDelete() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		hash, err := strconv.ParseUint(mux.Vars(r)["hash"], 10, 32)
+		hash, err := strconv.ParseUint(r.URL.Query().Get("hash"), 10, 32)
 		if err != nil {
 			serv.Logger.Error("request for film wrong hash: [%w]", err)
 			serv.error(w, r, http.StatusBadRequest, "bad hash")
