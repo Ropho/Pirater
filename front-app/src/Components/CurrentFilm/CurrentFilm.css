@@ -75,13 +75,17 @@
     top: 14rem;
     position: absolute;
     width: fit-content;
-    max-width: 450px;
+    max-width: 750px;
     margin-top: 1rem;
     font-family: 'Montserrat', sans-serif;
     font-size: 16pt;
     color:whitesmoke;
     margin-left: 3.5rem;
     overflow-wrap: break-word;
+    background-color: rgba(0,0,0,0.8);
+    border-bottom-right-radius: 3rem;
+    border-top-right-radius: 3rem;
+    line-height: 33px;
 }
 
 
